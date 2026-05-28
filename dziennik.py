@@ -1,66 +1,32 @@
 """
-dziennik.py — dziennik połowów (per-użytkownik).
-Każdy użytkownik ma osobny plik dziennik_{username}.json.
+dziennik.py — dziennik połowów (per-użytkownik), oparty o SQLite (moduł db).
+Publiczne API bez zmian: pobierz_wpisy / dodaj_wpis / usun_wpis / statystyki.
 """
 
-import json
-import os
 import uuid
 from datetime import datetime
 
-from config import DATA_DIR
-_DIR = DATA_DIR
-
-
-def _sciezka(username: str) -> str:
-    """Ścieżka do pliku dziennika dla danego użytkownika."""
-    bezpieczny = "".join(c for c in username.lower() if c.isalnum() or c in "_-")
-    return os.path.join(_DIR, f"dziennik_{bezpieczny}.json")
-
-
-def _wczytaj(username: str) -> dict:
-    sc = _sciezka(username)
-    if not os.path.exists(sc):
-        return {"wpisy": []}
-    try:
-        with open(sc, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, OSError):
-        return {"wpisy": []}
-
-
-def _zapisz(username: str, dane: dict) -> None:
-    with open(_sciezka(username), "w", encoding="utf-8") as f:
-        json.dump(dane, f, ensure_ascii=False, indent=2)
+import db
 
 
 def pobierz_wpisy(username: str) -> list:
     """Zwraca wszystkie wpisy użytkownika (najnowsze pierwsze)."""
-    return _wczytaj(username).get("wpisy", [])
+    return db.wpisy_uzytkownika(username)
 
 
 def dodaj_wpis(username: str, dane_wpisu: dict) -> dict:
     """Tworzy nowy wpis i zwraca go z nadanym ID."""
-    dane = _wczytaj(username)
     wpis = {
         "id":           str(uuid.uuid4())[:8],
         "data_dodania": datetime.now().strftime("%Y-%m-%d %H:%M"),
         **dane_wpisu,
     }
-    dane["wpisy"].insert(0, wpis)
-    _zapisz(username, dane)
-    return wpis
+    return db.dodaj_wpis_db(username, wpis)
 
 
 def usun_wpis(username: str, wpis_id: str) -> bool:
     """Usuwa wpis o podanym ID. Zwraca True jeśli znaleziono i usunięto."""
-    dane = _wczytaj(username)
-    przed = len(dane["wpisy"])
-    dane["wpisy"] = [w for w in dane["wpisy"] if w.get("id") != wpis_id]
-    if len(dane["wpisy"]) < przed:
-        _zapisz(username, dane)
-        return True
-    return False
+    return db.usun_wpis_db(username, wpis_id)
 
 
 def statystyki(username: str) -> dict:
@@ -78,8 +44,12 @@ def statystyki(username: str) -> dict:
         gatunki[g] = gatunki.get(g, 0) + 1
         dl = w.get("dlugosc_cm")
         if dl:
-            dlugosci.append(float(dl))
-            if rekord is None or float(dl) > float(rekord.get("dlugosc_cm", 0)):
+            try:
+                dl_f = float(dl)
+            except (TypeError, ValueError):
+                continue
+            dlugosci.append(dl_f)
+            if rekord is None or dl_f > float(rekord.get("dlugosc_cm", 0) or 0):
                 rekord = w
 
     return {

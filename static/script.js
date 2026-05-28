@@ -1,5 +1,30 @@
 /* script.js — logika frontendu aplikacji wędkarskiej */
 
+/* ===== CSRF: automatyczne dołączanie tokenu do żądań same-origin ===== */
+(function () {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    const TOKEN = meta ? meta.getAttribute('content') : null;
+    if (!TOKEN) return;
+
+    const _fetch = window.fetch.bind(window);
+    window.fetch = function (input, init) {
+        init = init || {};
+        const url    = (typeof input === 'string') ? input : (input && input.url) || '';
+        const method = (init.method || (typeof input === 'object' && input.method) || 'GET').toUpperCase();
+
+        // Tylko żądania zmieniające stan i tylko same-origin (pomijamy Overpass itp.)
+        const sameOrigin = url.startsWith('/') || url.startsWith(window.location.origin);
+        const bezpieczne = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
+
+        if (sameOrigin && !bezpieczne) {
+            const headers = new Headers(init.headers || (typeof input === 'object' ? input.headers : undefined) || {});
+            if (!headers.has('X-CSRFToken')) headers.set('X-CSRFToken', TOKEN);
+            init.headers = headers;
+        }
+        return _fetch(input, init);
+    };
+})();
+
 let daneCache = null;
 
 /* ===== KONFIGURACJA MAP LEAFLET ===== */

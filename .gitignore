@@ -3,8 +3,13 @@ __pycache__/
 *.pyc
 *.pyo
 .env
+.secret_key
 users.json
 dziennik_*.json
+*.imported
+planer.db
+planer.db-wal
+planer.db-shm
 uploads/
 *.gpx
 *.egg-info/

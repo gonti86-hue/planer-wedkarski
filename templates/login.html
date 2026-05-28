@@ -34,6 +34,7 @@
         <div class="login-blad">⚠ {{ blad_l }}</div>
         {% endif %}
         <form method="POST" action="/login">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="akcja" value="login">
             <div class="login-pole">
                 <label>Nick</label>
@@ -56,6 +57,7 @@
         <div class="login-blad">⚠ {{ blad_r }}</div>
         {% endif %}
         <form method="POST" action="/login">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="akcja" value="register">
             <div class="login-pole">
                 <label>Nick <small>(3–20 znaków: litery, cyfry, _ lub -)</small></label>
@@ -64,14 +66,14 @@
                        pattern="[a-zA-Z0-9_\-]{3,20}" title="3–20 znaków: litery, cyfry, _ lub -">
             </div>
             <div class="login-pole">
-                <label>Hasło <small>(min. 4 znaki)</small></label>
+                <label>Hasło <small>(min. 8 znaków)</small></label>
                 <input type="password" name="reg_password" autocomplete="new-password"
-                       placeholder="Wybierz hasło" required minlength="4">
+                       placeholder="Wybierz hasło" required minlength="8">
             </div>
             <div class="login-pole">
                 <label>Powtórz hasło</label>
                 <input type="password" name="reg_password2" autocomplete="new-password"
-                       placeholder="Powtórz hasło" required minlength="4">
+                       placeholder="Powtórz hasło" required minlength="8">
             </div>
             <button type="submit" class="btn-login btn-login-green">✓ Zarejestruj się</button>
         </form>

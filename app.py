@@ -1,6 +1,6 @@
 """
 app.py — główna aplikacja Flask do planowania wędkowania.
-Łączy moduły pogoda, solunar, ocena, jeziora, dziennik i auth.
+Łączy moduły pogoda, solunar, ocena, jeziora, dziennik, auth i db.
 Uruchomienie:
   Lokalnie:    python app.py
   Produkcja:   gunicorn --bind 0.0.0.0:8080 app:app
@@ -10,37 +10,62 @@ import functools
 import os
 import shutil
 import uuid
-import json
+import copy
 from datetime import datetime
-from pathlib import Path
 
-# ── Załaduj .env (lokalny development) ───────────────────────────────────────
-_env_path = Path(__file__).parent / ".env"
-if _env_path.exists():
-    with open(_env_path, encoding="utf-8") as _f:
-        for _line in _f:
-            _line = _line.strip()
-            if _line and not _line.startswith("#") and "=" in _line:
-                _k, _v = _line.split("=", 1)
-                os.environ.setdefault(_k.strip(), _v.strip().strip("\"'"))
+from config import (
+    DATA_DIR, APP_DIR, IS_PRODUCTION,
+    zaladuj_env, pobierz_secret_key,
+)
+
+# Wczytaj .env (lokalny development) — jedno miejsce zamiast duplikatów
+zaladuj_env()
 
 from flask import (
     Flask, render_template, jsonify, request,
     send_from_directory, session, redirect, url_for
 )
+from flask_wtf.csrf import CSRFProtect, CSRFError
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from werkzeug.middleware.proxy_fix import ProxyFix
 
-from config import DATA_DIR, APP_DIR
+import db
 from pogoda import pobierz_pogode
 from solunar import oblicz_okna_solunarne
 from ocena import ocen_jezioro, porownaj_jeziora
-from jeziora import wczytaj_jeziora, pobierz_jezioro, wczytaj_punkty_gpx, polacz_punkty_z_gpx, zapisz_gps_lowiska
+from jeziora import (
+    wczytaj_jeziora, pobierz_jezioro, wczytaj_punkty_gpx,
+    polacz_punkty_z_gpx, zastosuj_gps_uzytkownika, istnieje_lowisko,
+)
 from dziennik import pobierz_wpisy, dodaj_wpis, usun_wpis, statystyki
 from ai_ocena_ryby import ocen_rybye
 from auth import zarejestruj, weryfikuj
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32)
-app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # max 10 MB
+
+# Za reverse-proxy (Fly.io) — poprawny adres klienta i schemat (https)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+
+app.secret_key = pobierz_secret_key()
+app.config.update(
+    MAX_CONTENT_LENGTH=10 * 1024 * 1024,        # max 10 MB upload
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",              # blokuje cross-site wysyłkę ciasteczka
+    SESSION_COOKIE_SECURE=IS_PRODUCTION,        # tylko HTTPS w produkcji
+    WTF_CSRF_TIME_LIMIT=None,                   # token ważny przez całą sesję
+)
+
+# Ochrona CSRF (formularze + nagłówek X-CSRFToken dla fetch)
+csrf = CSRFProtect(app)
+
+# Limit prób (anti-brute-force). Pamięć procesu — wystarcza dla 1 maszyny.
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[],
+    storage_uri="memory://",
+)
 
 UPLOAD_FOLDER  = os.path.join(DATA_DIR, "uploads")
 ZDJECIA_FOLDER = os.path.join(UPLOAD_FOLDER, "zdjecia")
@@ -48,17 +73,11 @@ ZDJECIA_FOLDER = os.path.join(UPLOAD_FOLDER, "zdjecia")
 _DOZWOLONE_ZDJECIA = {".jpg", ".jpeg", ".png", ".webp", ".heic"}
 
 
-# ── Inicjalizacja katalogu danych ────────────────────────────────────────────
+# ── Inicjalizacja danych ──────────────────────────────────────────────────────
 
 def _init_data():
-    """
-    Tworzy strukturę katalogów DATA_DIR i kopiuje jeziora.json
-    z katalogu aplikacji, jeśli jeszcze nie istnieje w DATA_DIR.
-    Wywoływane przy imporcie modułu (działa zarówno z python app.py
-    jak i z gunicorn app:app).
-    """
-    os.makedirs(os.path.join(DATA_DIR, "uploads", "zdjecia"), exist_ok=True)
-
+    """Tworzy katalogi i kopiuje współdzielony jeziora.json przy pierwszym starcie."""
+    os.makedirs(ZDJECIA_FOLDER, exist_ok=True)
     dest = os.path.join(DATA_DIR, "jeziora.json")
     src  = os.path.join(APP_DIR,  "jeziora.json")
     if not os.path.exists(dest) and os.path.exists(src):
@@ -66,6 +85,16 @@ def _init_data():
 
 
 _init_data()
+db.init_db()
+
+
+# ── Błąd CSRF → czytelna odpowiedź ─────────────────────────────────────────────
+
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    if request.is_json or request.path.startswith("/api/"):
+        return jsonify({"blad": "Sesja wygasła (CSRF) — odśwież stronę", "redirect": "/login"}), 400
+    return redirect(url_for("login_page"))
 
 
 # ── Dekorator wymagający zalogowania ─────────────────────────────────────────
@@ -81,10 +110,17 @@ def login_required(f):
     return decorated
 
 
-# ── Pomocniki GPX ─────────────────────────────────────────────────────────────
+# ── Pomocniki GPX / GPS (per-użytkownik) ──────────────────────────────────────
 
-def _wczytaj_gpx_jezior(jezioro: dict) -> dict:
-    sciezka = os.path.join(UPLOAD_FOLDER, f"{jezioro['id']}.gpx")
+def _sciezka_gpx(jezior_id: str, username: str) -> str:
+    """Prywatna ścieżka pliku GPX — osobna dla każdego użytkownika i jeziora."""
+    bez_u = "".join(c for c in username.lower() if c.isalnum() or c in "_-")
+    bez_j = "".join(c for c in jezior_id.lower() if c.isalnum() or c in "_-")
+    return os.path.join(UPLOAD_FOLDER, f"gpx_{bez_u}_{bez_j}.gpx")
+
+
+def _wczytaj_gpx_jezior(jezioro: dict, username: str) -> dict:
+    sciezka = _sciezka_gpx(jezioro["id"], username)
     if not os.path.exists(sciezka):
         return jezioro
     try:
@@ -94,10 +130,18 @@ def _wczytaj_gpx_jezior(jezioro: dict) -> dict:
         return jezioro
 
 
-def _pobierz_pelne_dane(preferencje: dict = None) -> dict:
+def _przygotuj_jezioro(jezioro: dict, username: str, overrides: dict) -> dict:
+    """Nakłada prywatne pozycje GPS i punkty GPX użytkownika na dane jeziora."""
+    jez = zastosuj_gps_uzytkownika(jezioro, overrides)
+    return _wczytaj_gpx_jezior(jez, username)
+
+
+def _pobierz_pelne_dane(username: str, preferencje: dict = None) -> dict:
     dane_jezior = wczytaj_jeziora()
-    wulpinskie = _wczytaj_gpx_jezior(pobierz_jezioro(dane_jezior, "wulpinskie"))
-    sarag      = _wczytaj_gpx_jezior(pobierz_jezioro(dane_jezior, "sarag"))
+    overrides   = db.gps_overrides(username)
+
+    wulpinskie = _przygotuj_jezioro(pobierz_jezioro(dane_jezior, "wulpinskie"), username, overrides)
+    sarag      = _przygotuj_jezioro(pobierz_jezioro(dane_jezior, "sarag"),      username, overrides)
     miesiac    = datetime.now().month
 
     pogoda_w = pobierz_pogode(wulpinskie["wspolrzedne"]["lat"], wulpinskie["wspolrzedne"]["lon"])
@@ -124,6 +168,7 @@ def _pobierz_pelne_dane(preferencje: dict = None) -> dict:
 # ── Auth ─────────────────────────────────────────────────────────────────────
 
 @app.route("/login", methods=["GET", "POST"])
+@limiter.limit("10 per minute; 60 per hour", methods=["POST"])
 def login_page():
     if session.get("user"):
         return redirect(url_for("index"))
@@ -136,6 +181,7 @@ def login_page():
             user = request.form.get("username", "").strip().lower()
             pwd  = request.form.get("password", "")
             if weryfikuj(user, pwd):
+                session.clear()
                 session["user"] = user
                 return redirect(url_for("index"))
             blad_l = "Błędny nick lub hasło."
@@ -149,6 +195,7 @@ def login_page():
             else:
                 ok, komunikat = zarejestruj(user, pwd)
                 if ok:
+                    session.clear()
                     session["user"] = user.lower()
                     return redirect(url_for("index"))
                 blad_r = komunikat
@@ -182,7 +229,7 @@ def api_dane():
     }
     preferencje = {k: v for k, v in preferencje.items() if v}
     try:
-        dane = _pobierz_pelne_dane(preferencje or None)
+        dane = _pobierz_pelne_dane(session["user"], preferencje or None)
         return jsonify({"sukces": True, "dane": dane})
     except Exception as e:
         return jsonify({"sukces": False, "blad": str(e)}), 500
@@ -201,12 +248,15 @@ def api_pogoda(jezior_id: str):
 @app.route("/api/upload-gpx/<jezior_id>", methods=["POST"])
 @login_required
 def upload_gpx(jezior_id: str):
+    # Walidacja: jezior_id musi być znanym jeziorem (ochrona przed path traversal)
+    if not pobierz_jezioro(wczytaj_jeziora(), jezior_id):
+        return jsonify({"blad": f"Nieznane jezioro: {jezior_id}"}), 404
     if "plik" not in request.files:
         return jsonify({"blad": "Brak pliku w żądaniu"}), 400
     plik = request.files["plik"]
-    if not plik.filename.lower().endswith(".gpx"):
+    if not (plik.filename or "").lower().endswith(".gpx"):
         return jsonify({"blad": "Plik musi mieć rozszerzenie .gpx"}), 400
-    sciezka = os.path.join(UPLOAD_FOLDER, f"{jezior_id}.gpx")
+    sciezka = _sciezka_gpx(jezior_id, session["user"])
     plik.save(sciezka)
     try:
         punkty = wczytaj_punkty_gpx(sciezka)
@@ -218,7 +268,17 @@ def upload_gpx(jezior_id: str):
 @app.route("/api/jeziora")
 @login_required
 def api_jeziora():
-    return jsonify(wczytaj_jeziora())
+    dane      = wczytaj_jeziora()
+    overrides = db.gps_overrides(session["user"])
+    if overrides:
+        dane = copy.deepcopy(dane)
+        for jez in dane.get("jeziora", []):
+            jid = jez.get("id")
+            for low in jez.get("lowiska", []):
+                ov = overrides.get((jid, low.get("id")))
+                if ov:
+                    low["gps"] = {"lat": ov["lat"], "lon": ov["lon"], "placeholder": False}
+    return jsonify(dane)
 
 
 @app.route("/api/lowisko-gps/<jezior_id>/<lowisko_id>", methods=["POST"])
@@ -234,9 +294,11 @@ def api_ustaw_gps(jezior_id: str, lowisko_id: str):
         return jsonify({"blad": "Nieprawidłowe współrzędne — wymagane liczby"}), 400
     if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
         return jsonify({"blad": "Współrzędne poza zakresem"}), 400
-    if zapisz_gps_lowiska(jezior_id, lowisko_id, lat, lon):
-        return jsonify({"sukces": True, "lat": lat, "lon": lon})
-    return jsonify({"blad": f"Nie znaleziono: {jezior_id}/{lowisko_id}"}), 404
+    if not istnieje_lowisko(jezior_id, lowisko_id):
+        return jsonify({"blad": f"Nie znaleziono: {jezior_id}/{lowisko_id}"}), 404
+    # Zapis prywatny dla użytkownika — nie dotyka danych innych osób
+    db.zapisz_gps(session["user"], jezior_id, lowisko_id, lat, lon)
+    return jsonify({"sukces": True, "lat": round(lat, 6), "lon": round(lon, 6)})
 
 
 # ── Dziennik połowów (per-user) ───────────────────────────────────────────────

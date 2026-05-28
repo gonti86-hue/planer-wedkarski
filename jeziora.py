@@ -100,33 +100,31 @@ def polacz_punkty_z_gpx(jezioro: dict, punkty_gpx: list[dict]) -> dict:
     return jezioro_kopia
 
 
-def zapisz_gps_lowiska(jezior_id: str, lowisko_id: str, lat: float, lon: float) -> bool:
-    """
-    Aktualizuje współrzędne GPS łowiska bezpośrednio w jeziora.json.
-    Ustawia placeholder=False (pozycja precyzyjna).
-    Zwraca True jeśli znaleziono i zaktualizowano, False w przeciwnym razie.
-    """
-    global _cache_dane, _cache_mtime
-    try:
-        with open(SCIEZKA_JSON, "r", encoding="utf-8") as f:
-            dane = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
+def istnieje_lowisko(jezior_id: str, lowisko_id: str) -> bool:
+    """Sprawdza, czy dane łowisko istnieje w (współdzielonych) danych jezior."""
+    jezioro = pobierz_jezioro(wczytaj_jeziora(), jezior_id)
+    if not jezioro:
         return False
+    return any(l.get("id") == lowisko_id for l in jezioro.get("lowiska", []))
 
-    for jezioro in dane.get("jeziora", []):
-        if jezioro.get("id") != jezior_id:
-            continue
-        for lowisko in jezioro.get("lowiska", []):
-            if lowisko.get("id") != lowisko_id:
-                continue
-            lowisko["gps"] = {"lat": round(lat, 6), "lon": round(lon, 6), "placeholder": False}
-            with open(SCIEZKA_JSON, "w", encoding="utf-8") as f:
-                json.dump(dane, f, ensure_ascii=False, indent=2)
-            # Unieważnij cache
-            _cache_dane  = None
-            _cache_mtime = 0.0
-            return True
-    return False
+
+def zastosuj_gps_uzytkownika(jezioro: dict, overrides: dict) -> dict:
+    """
+    Nakłada prywatne pozycje GPS użytkownika na (współdzielone, tylko-do-odczytu)
+    dane jeziora. Zwraca KOPIĘ — nigdy nie modyfikuje współdzielonego cache'u.
+
+    overrides: {(jezior_id, lowisko_id): {"lat":.., "lon":..}}
+    """
+    import copy
+    if not overrides:
+        return jezioro
+    jez = copy.deepcopy(jezioro)
+    jid = jez.get("id")
+    for low in jez.get("lowiska", []):
+        ov = overrides.get((jid, low.get("id")))
+        if ov:
+            low["gps"] = {"lat": ov["lat"], "lon": ov["lon"], "placeholder": False}
+    return jez
 
 
 def gatunek_sezonowy(jezioro: dict, miesiac: int) -> list[dict]:
