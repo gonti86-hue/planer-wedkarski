@@ -2,7 +2,7 @@
 # Dokumentacja: https://fly.io/docs/reference/configuration/
 
 app = "planer-wedkarski"
-primary_region = "waw"
+primary_region = "ams"
 
 [build]
 
