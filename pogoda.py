@@ -4,10 +4,15 @@ Darmowe API, nie wymaga klucza. Pobiera dane historyczne + prognozę.
 """
 
 import requests
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import Optional
-import math
+from zoneinfo import ZoneInfo
 
+
+# Open-Meteo zwraca godziny w tej strefie (parametr "timezone" w zapytaniu).
+# Porównujemy bieżący czas w TEJ SAMEJ strefie — inaczej na serwerze w UTC
+# (Fly.io) „aktualna" pogoda była przesunięta o offset strefy.
+STREFA = ZoneInfo("Europe/Warsaw")
 
 TIMEOUT_S = 10
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
@@ -60,10 +65,24 @@ def pobierz_pogode(lat: float, lon: float) -> Optional[dict]:
     return _przetworz_dane(raw)
 
 
+def _najblizszy_indeks(godziny: list, teraz_naive: datetime) -> int:
+    """Zwraca indeks godziny z API najbliższej bieżącemu czasowi."""
+    najlepszy, najmniejsza = len(godziny) // 2, None
+    for i, t in enumerate(godziny):
+        try:
+            dt = datetime.strptime(t, "%Y-%m-%dT%H:%M")
+        except (ValueError, TypeError):
+            continue
+        roznica = abs((dt - teraz_naive).total_seconds())
+        if najmniejsza is None or roznica < najmniejsza:
+            najmniejsza, najlepszy = roznica, i
+    return najlepszy
+
+
 def _przetworz_dane(raw: dict) -> dict:
     """Przetwarza surowe dane JSON z API na czytelne struktury."""
     godziny = raw["hourly"]["time"]
-    teraz = datetime.now(timezone.utc).astimezone()
+    teraz = datetime.now(STREFA)
     teraz_str = teraz.strftime("%Y-%m-%dT%H:00")
 
     # Znajdź indeks aktualnej godziny
@@ -73,8 +92,8 @@ def _przetworz_dane(raw: dict) -> dict:
             idx = i
             break
     if idx is None:
-        # Weź najbliższy dostępny
-        idx = len(godziny) // 2
+        # Brak dokładnego trafienia — weź najbliższy czasowo (porównanie naiwne)
+        idx = _najblizszy_indeks(godziny, teraz.replace(tzinfo=None))
 
     cisnienia_48h = []
     for offset in range(-47, 1):
@@ -97,12 +116,21 @@ def _przetworz_dane(raw: dict) -> dict:
     temp_powietrza = _get("temperature_2m")
     temp_wody_est = _szacuj_temperature_wody(temp_powietrza, raw)
 
-    # Dane dziennie (dzisiaj)
-    dzisiaj_idx = 2  # past_days=2, więc index 2 = dzisiaj
+    # Dane dziennie (dzisiaj) — znajdź po dacie zamiast sztywnego indeksu
     daily = raw.get("daily", {})
+    daily_times = daily.get("time", [])
+    dzis = teraz.strftime("%Y-%m-%d")
+    if dzis in daily_times:
+        dzisiaj_idx = daily_times.index(dzis)
+    else:
+        dzisiaj_idx = min(2, max(0, len(daily_times) - 1))
 
-    wschod = daily.get("sunrise", [None] * 5)[dzisiaj_idx]
-    zachod = daily.get("sunset", [None] * 5)[dzisiaj_idx]
+    def _daily(klucz):
+        seria = daily.get(klucz, [])
+        return seria[dzisiaj_idx] if dzisiaj_idx < len(seria) else None
+
+    wschod = _daily("sunrise")
+    zachod = _daily("sunset")
 
     return {
         "blad": None,

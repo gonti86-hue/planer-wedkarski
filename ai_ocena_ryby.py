@@ -13,15 +13,10 @@ import os
 import re
 from pathlib import Path
 
-# Załaduj .env jeśli istnieje (prosta implementacja bez python-dotenv)
-_env_path = Path(__file__).parent / ".env"
-if _env_path.exists():
-    with open(_env_path, encoding="utf-8") as _f:
-        for _line in _f:
-            _line = _line.strip()
-            if _line and not _line.startswith("#") and "=" in _line:
-                _k, _v = _line.split("=", 1)
-                os.environ.setdefault(_k.strip(), _v.strip().strip("\"'"))
+from config import zaladuj_env
+
+# Wczytaj .env przez wspólny loader (bez duplikowania parsera)
+zaladuj_env()
 
 try:
     from anthropic import Anthropic
@@ -60,7 +55,7 @@ Odpowiedz WYŁĄCZNIE tym JSON (zero dodatkowego tekstu):
 }"""
 
 
-def ocen_rybye(sciezka_zdjecia: str) -> dict:
+def ocen_ryby(sciezka_zdjecia: str) -> dict:
     """
     Analizuje zdjęcie ryby i zwraca słownik z gatunkiem, rozmiarem i oceną.
     W razie błędu zwraca {"blad": "opis błędu"}.
@@ -87,10 +82,12 @@ def ocen_rybye(sciezka_zdjecia: str) -> dict:
         return {"blad": f"Nie znaleziono pliku: {sciezka_zdjecia}"}
 
     ext = sciezka.suffix.lower()
+    # Formaty obsługiwane przez Claude Vision. HEIC NIE jest wspierany —
+    # filtrowany już na wejściu (app.py), tutaj zostają tylko bezpieczne typy.
     media_types = {
         ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
         ".png": "image/png",  ".webp": "image/webp",
-        ".gif": "image/gif",  ".heic": "image/jpeg",
+        ".gif": "image/gif",
     }
     media_type = media_types.get(ext, "image/jpeg")
 

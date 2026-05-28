@@ -39,7 +39,7 @@ from jeziora import (
     polacz_punkty_z_gpx, zastosuj_gps_uzytkownika, istnieje_lowisko,
 )
 from dziennik import pobierz_wpisy, dodaj_wpis, usun_wpis, statystyki
-from ai_ocena_ryby import ocen_rybye
+from ai_ocena_ryby import ocen_ryby
 from auth import zarejestruj, weryfikuj
 
 app = Flask(__name__)
@@ -70,7 +70,14 @@ limiter = Limiter(
 UPLOAD_FOLDER  = os.path.join(DATA_DIR, "uploads")
 ZDJECIA_FOLDER = os.path.join(UPLOAD_FOLDER, "zdjecia")
 
-_DOZWOLONE_ZDJECIA = {".jpg", ".jpeg", ".png", ".webp", ".heic"}
+# HEIC (iPhone) nie jest wspierany przez Claude Vision — odrzucamy z jasnym
+# komunikatem zamiast wysyłać błędne bajty do API.
+_DOZWOLONE_ZDJECIA = {".jpg", ".jpeg", ".png", ".webp"}
+
+
+def _bezpieczna_nazwa(s: str) -> str:
+    """Sanityzuje fragment nazwy pliku — tylko znaki alfanumeryczne, _ i -."""
+    return "".join(c for c in (s or "").lower() if c.isalnum() or c in "_-")
 
 
 # ── Inicjalizacja danych ──────────────────────────────────────────────────────
@@ -114,8 +121,8 @@ def login_required(f):
 
 def _sciezka_gpx(jezior_id: str, username: str) -> str:
     """Prywatna ścieżka pliku GPX — osobna dla każdego użytkownika i jeziora."""
-    bez_u = "".join(c for c in username.lower() if c.isalnum() or c in "_-")
-    bez_j = "".join(c for c in jezior_id.lower() if c.isalnum() or c in "_-")
+    bez_u = _bezpieczna_nazwa(username)
+    bez_j = _bezpieczna_nazwa(jezior_id)
     return os.path.join(UPLOAD_FOLDER, f"gpx_{bez_u}_{bez_j}.gpx")
 
 
@@ -311,12 +318,16 @@ def api_ocen_ryby():
     plik = request.files["zdjecie"]
     ext  = os.path.splitext(plik.filename or "")[1].lower()
     if ext not in _DOZWOLONE_ZDJECIA:
-        return jsonify({"blad": f"Nieobsługiwany format. Dozwolone: {', '.join(_DOZWOLONE_ZDJECIA)}"}), 400
+        return jsonify({
+            "blad": f"Nieobsługiwany format. Dozwolone: {', '.join(sorted(_DOZWOLONE_ZDJECIA))} "
+                    "(HEIC z iPhone'a zapisz/wyeksportuj jako JPG)."
+        }), 400
     os.makedirs(ZDJECIA_FOLDER, exist_ok=True)
-    nazwa_pliku = f"{uuid.uuid4().hex[:14]}{ext}"
+    # Nazwa z prefiksem użytkownika — pozwala wymusić własność przy serwowaniu.
+    nazwa_pliku = f"{_bezpieczna_nazwa(session['user'])}__{uuid.uuid4().hex[:14]}{ext}"
     sciezka     = os.path.join(ZDJECIA_FOLDER, nazwa_pliku)
     plik.save(sciezka)
-    wynik = ocen_rybye(sciezka)
+    wynik = ocen_ryby(sciezka)
     return jsonify({"sukces": True, "wynik": wynik, "zdjecie_id": nazwa_pliku})
 
 
@@ -340,21 +351,45 @@ def api_dziennik_dodaj():
 @app.route("/api/dziennik/usun/<wpis_id>", methods=["DELETE"])
 @login_required
 def api_dziennik_usun(wpis_id: str):
-    if usun_wpis(session["user"], wpis_id):
-        return jsonify({"sukces": True})
-    return jsonify({"blad": "Nie znaleziono wpisu"}), 404
+    user = session["user"]
+    # Znajdź zdjęcie powiązane z wpisem (jeśli jest) — by je sprzątnąć po usunięciu.
+    zdjecie = next(
+        (w.get("zdjecie_id") for w in pobierz_wpisy(user) if w.get("id") == wpis_id),
+        None,
+    )
+    if not usun_wpis(user, wpis_id):
+        return jsonify({"blad": "Nie znaleziono wpisu"}), 404
+
+    # Usuń plik zdjęcia tylko jeśli należy do tego użytkownika i istnieje.
+    if zdjecie and zdjecie.startswith(f"{_bezpieczna_nazwa(user)}__"):
+        sciezka = os.path.join(ZDJECIA_FOLDER, os.path.basename(zdjecie))
+        try:
+            if os.path.isfile(sciezka):
+                os.remove(sciezka)
+        except OSError:
+            pass
+    return jsonify({"sukces": True})
 
 
 @app.route("/uploads/zdjecia/<nazwa_pliku>")
 @login_required
 def serwuj_zdjecie(nazwa_pliku: str):
-    return send_from_directory(ZDJECIA_FOLDER, nazwa_pliku)
+    # Własność: plik musi mieć prefiks bieżącego użytkownika.
+    if not os.path.basename(nazwa_pliku).startswith(f"{_bezpieczna_nazwa(session['user'])}__"):
+        return jsonify({"blad": "Brak dostępu"}), 403
+    return send_from_directory(ZDJECIA_FOLDER, os.path.basename(nazwa_pliku))
 
 
 @app.route("/api/ja")
 def api_ja():
     user = session.get("user")
     return jsonify({"zalogowany": bool(user), "user": user})
+
+
+@app.route("/health")
+def health():
+    """Lekki health-check dla Fly.io / monitoringu (bez logowania i CSRF)."""
+    return jsonify({"status": "ok"}), 200
 
 
 # ── Start (lokalny development) ───────────────────────────────────────────────

@@ -11,9 +11,8 @@ Ocenia osobno każde jezioro biorąc pod uwagę:
   - burza = wynik 0 — fix: algorytm
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional
-import math
 
 
 # =====================================================================
@@ -26,10 +25,10 @@ OCHRONA_GATUNKOW: dict[str, dict] = {
                          "uwaga": "Tarło październik–grudzień — C&R lub zmiana celu"},
     "Sielawa":          {"wymiar_cm": 18, "okres_ochronny": [10, 11],     "zakaz": False,
                          "uwaga": "Tarło październik–listopad"},
-    "Sandacz":          {"wymiar_cm": 45, "okres_ochronny": [1, 2, 3, 4, 5], "zakaz": False,
-                         "uwaga": "Okres ochronny do 31 maja"},
-    "Szczupak":         {"wymiar_cm": 45, "okres_ochronny": [1, 2, 3, 4], "zakaz": False,
-                         "uwaga": "Okres ochronny do 30 kwietnia"},
+    "Sandacz":          {"wymiar_cm": 50, "okres_ochronny": [1, 2, 3, 4, 5], "zakaz": False,
+                         "uwaga": "Wymiar 50 cm; okres ochronny do 31 maja"},
+    "Szczupak":         {"wymiar_cm": 50, "okres_ochronny": [1, 2, 3, 4], "zakaz": False,
+                         "uwaga": "Wymiar 50 cm; okres ochronny do 30 kwietnia"},
     "Węgorz":           {"wymiar_cm": None, "okres_ochronny": list(range(1, 13)), "zakaz": True,
                          "uwaga": "Moratorium UE — zakaz połowu w całej Polsce"},
     "Sum":              {"wymiar_cm": 70,  "okres_ochronny": [], "zakaz": False, "uwaga": None},

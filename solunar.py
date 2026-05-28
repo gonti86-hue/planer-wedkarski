@@ -5,7 +5,6 @@ podczas górowania i dolowania Księżyca oraz Słońca (główne okna)
 oraz w połowie między nimi (mniejsze okna).
 """
 
-import math
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 import ephem  # biblioteka astronomiczna (pip install ephem)
@@ -22,23 +21,23 @@ def faza_ksiezyca(data: Optional[datetime] = None) -> dict:
     ks = ephem.Moon(data)
     faza = ks.phase  # 0-100 % oświetlenia
 
+    # Czy księżyc rośnie, czy maleje? Porównaj oświetlenie za 12 h.
+    pozniej = ephem.Moon(data + timedelta(hours=12)).phase
+    rosnacy = pozniej > faza
+
     if faza < 6:
         nazwa = "Nów"
-    elif faza < 35:
-        nazwa = "Sierp rosnący"
+    elif faza > 96:
+        nazwa = "Pełnia"
+    elif faza < 45:
+        nazwa = "Sierp rosnący" if rosnacy else "Sierp malejący"
     elif faza < 55:
-        nazwa = "Pierwsza kwadra"
-    elif faza < 80:
-        nazwa = "Garbata rosnąca"
-    elif faza < 94:
-        nazwa = "Pełnia"
-    elif faza < 100:
-        nazwa = "Garbata malejąca"
-    else:
-        nazwa = "Pełnia"
+        nazwa = "Pierwsza kwadra" if rosnacy else "Ostatnia kwadra"
+    else:  # 55–96 %
+        nazwa = "Garbata rosnąca" if rosnacy else "Garbata malejąca"
 
     # Sprawdź dokładniej fazę numeryczną (0=nów, 0.5=pełnia)
-    faza_eph = ephem.Moon(data).phase / 100.0  # 0-1
+    faza_eph = faza / 100.0  # 0-1
 
     return {
         "oswietlenie_proc": round(faza, 1),
@@ -136,12 +135,12 @@ def oblicz_okna_solunarne(lat: float, lon: float, data: Optional[datetime] = Non
     # Posortuj okna chronologicznie
     okna_posortowane = sorted(okna, key=lambda x: x["szczyt"])
 
-    # Następne okno
-    nastepne = None
-    for o in okna_posortowane:
-        if o["szczyt"] > teraz.strftime("%H:%M"):
-            nastepne = o
-            break
+    # Następne okno — pierwsze dzisiaj po bieżącej godzinie;
+    # jeśli wszystkie minęły, „zawiń" do najwcześniejszego (jutro rano).
+    teraz_hhmm = teraz.strftime("%H:%M")
+    nastepne = next((o for o in okna_posortowane if o["szczyt"] > teraz_hhmm), None)
+    if nastepne is None and okna_posortowane:
+        nastepne = okna_posortowane[0]
 
     return {
         "okna": okna_posortowane,
@@ -150,33 +149,4 @@ def oblicz_okna_solunarne(lat: float, lon: float, data: Optional[datetime] = Non
         "zachod_slonca": zachod_sl.strftime("%H:%M") if zachod_sl else "N/D",
         "faza_ksiezyca": faza_ksiezyca(data),
         "aktywne_teraz": any(o["aktywne"] for o in okna)
-    }
-
-
-def ocen_czas_wedkowania(okna_data: dict) -> dict:
-    """
-    Ocenia aktualny czas wedkowania na podstawie okien solunarnych.
-    Zwraca: wynik (0-30), opis, premia.
-    """
-    wynik = 0
-    opis_czesci = []
-
-    if okna_data.get("aktywne_teraz"):
-        wynik += 25
-        opis_czesci.append("jesteś w oknie solunarnym (+25)")
-    else:
-        nastepne = okna_data.get("nastepne_okno")
-        if nastepne:
-            opis_czesci.append(f"następne okno: {nastepne['szczyt']} ({nastepne['typ']})")
-            wynik += 5  # mała premia za bliskość okna
-
-    faza = okna_data.get("faza_ksiezyca", {})
-    oswietlenie = faza.get("oswietlenie_proc", 50)
-    if oswietlenie < 20 or oswietlenie > 85:
-        wynik += 5
-        opis_czesci.append(f"korzystna faza księżyca: {faza.get('nazwa', '')} (+5)")
-
-    return {
-        "wynik_solunarny": min(wynik, 30),
-        "opis": "; ".join(opis_czesci) if opis_czesci else "Brak aktywnych okien solunarnych"
     }
