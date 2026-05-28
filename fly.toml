@@ -1,0 +1,33 @@
+# fly.toml — konfiguracja Fly.io
+# Dokumentacja: https://fly.io/docs/reference/configuration/
+
+app = "planer-wedkarski"
+primary_region = "waw"
+
+[build]
+
+[env]
+  DATA_DIR = "/data"
+  PORT = "8080"
+
+# Trwały wolumen — dane użytkowników i zdjęcia przeżyją redeploy
+[mounts]
+  source      = "wedkarski_data"
+  destination = "/data"
+
+[http_service]
+  internal_port       = 8080
+  force_https         = true
+  auto_stop_machines  = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type       = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+[[vm]]
+  memory   = "256mb"
+  cpu_kind = "shared"
+  cpus     = 1

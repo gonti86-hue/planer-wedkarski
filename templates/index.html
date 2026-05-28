@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planer Wędkarski — Wulpińskie & Sarąg</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <span class="fish-icon">🎣</span>
+                <div>
+                    <h1>Planer Wędkarski</h1>
+                    <p class="subtitle">Jezioro Wulpińskie &amp; Jezioro Sarąg · woj. warmińsko-mazurskie</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <span id="czas-odswiezenia" class="timestamp">Ładowanie...</span>
+                <button id="btn-odswiez" class="btn-primary" onclick="odswiezDane()">
+                    ↻ Odśwież
+                </button>
+                <div class="user-badge">
+                    <span class="user-nick">👤 {{ username }}</span>
+                    <a href="/logout" class="btn-logout" title="Wyloguj się">Wyloguj</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- BANER BŁĘDU -->
+        <div id="baner-blad" class="baner-blad hidden">
+            <strong>Błąd:</strong> <span id="blad-tresc"></span>
+        </div>
+
+        <!-- LOADER -->
+        <div id="loader" class="loader-container">
+            <div class="loader-spinner"></div>
+            <p>Pobieranie danych pogodowych...</p>
+        </div>
+
+        <!-- GŁÓWNA TREŚĆ -->
+        <div id="tresc-glowna" class="hidden">
+
+            <!-- WERDYKT GŁÓWNY -->
+            <section id="werdykt-sekcja" class="sekcja-werdykt">
+                <div id="werdykt-tekst" class="werdykt-tekst"></div>
+            </section>
+
+            <!-- PREFERENCJE WĘDKARZA -->
+            <section class="sekcja-preferencje">
+                <div class="pref-naglowek" onclick="togglePreferencje()">
+                    <span>🎯 Twoje preferencje</span>
+                    <span id="pref-podsumowanie" class="pref-podsum"></span>
+                    <span id="pref-strzalka" class="pref-strzalka">▼</span>
+                </div>
+                <div id="pref-panel" class="pref-panel hidden">
+                    <div class="pref-grid">
+                        <div class="pref-group">
+                            <div class="pref-label">Preferowane jezioro</div>
+                            <div class="pref-radio-row">
+                                <label class="pref-radio"><input type="radio" name="pref-jezioro" value=""> Obojętne</label>
+                                <label class="pref-radio"><input type="radio" name="pref-jezioro" value="wulpinskie"> Wulpińskie</label>
+                                <label class="pref-radio"><input type="radio" name="pref-jezioro" value="sarag"> Sarąg</label>
+                            </div>
+                        </div>
+                        <div class="pref-group pref-group-gatunki">
+                            <div class="pref-label">
+                                Docelowe gatunki ryb
+                                <span id="pref-gatunki-liczba" class="pref-gatunki-liczba"></span>
+                                <button class="btn-clear-gatunki" onclick="wyczyscGatunki(event)" title="Wyczyść wybór">✕ wyczyść</button>
+                            </div>
+                            <div class="pref-gatunki-lista">
+                                <div class="pref-gatunki-kat">Wulpińskie &amp; Sarąg</div>
+                                <div class="pref-check-row">
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Szczupak"> Szczupak</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Okoń"> Okoń</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Leszcz"> Leszcz</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Lin"> Lin</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Płoć"> Płoć</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Karaś"> Karaś</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Wzdręga"> Wzdręga</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Krąp"> Krąp</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Jazgarz"> Jazgarz</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Jaź"> Jaź</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Sum"> Sum</label>
+                                </div>
+                                <div class="pref-gatunki-kat">Tylko Wulpińskie</div>
+                                <div class="pref-check-row">
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Sandacz"> Sandacz</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Sieja"> Sieja</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Sielawa"> Sielawa</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Węgorz"> Węgorz</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Miętus"> Miętus</label>
+                                </div>
+                                <div class="pref-gatunki-kat">Tylko Sarąg</div>
+                                <div class="pref-check-row">
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Karaś srebrzysty"> Karaś srebrzysty</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Karp"> Karp</label>
+                                    <label class="pref-radio"><input type="checkbox" name="pref-gatunek" value="Amur biały"> Amur biały</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pref-group">
+                            <div class="pref-label">Metoda połowu</div>
+                            <div class="pref-radio-row pref-wrap">
+                                <label class="pref-radio"><input type="radio" name="pref-metoda" value=""> Dowolna</label>
+                                <label class="pref-radio"><input type="radio" name="pref-metoda" value="spinning"> Spinning</label>
+                                <label class="pref-radio"><input type="radio" name="pref-metoda" value="grunt"> Grunt</label>
+                                <label class="pref-radio"><input type="radio" name="pref-metoda" value="spławik"> Spławik</label>
+                                <label class="pref-radio"><input type="radio" name="pref-metoda" value="jigging"> Jigging</label>
+                                <label class="pref-radio"><input type="radio" name="pref-metoda" value="grunt nocny"> Nocny</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pref-akcje">
+                        <button class="btn-primary-green" onclick="zastosujPreferencje()">✓ Zastosuj i odśwież</button>
+                        <button class="btn-ghost" onclick="resetujPreferencje()">✕ Resetuj preferencje</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- KARTY JEZIOR -->
+            <section class="jeziora-grid">
+                <!-- Wulpińskie -->
+                <div id="karta-wulpinskie" class="jezioro-karta">
+                    <div class="karta-naglowek">
+                        <div>
+                            <h2>Jezioro Wulpińskie</h2>
+                            <p class="jezioro-meta">Tomaszkowo · 707 ha · głęb. 54 m · rynnowe</p>
+                        </div>
+                        <div id="wynik-w-badge" class="wynik-badge"></div>
+                    </div>
+
+                    <div id="rekomendacja-w" class="rekomendacja-box"></div>
+
+                    <!-- Pasek wyniku -->
+                    <div class="wynik-pasek-container">
+                        <div id="pasek-w" class="wynik-pasek">
+                            <div id="fill-w" class="wynik-fill"></div>
+                        </div>
+                        <span id="wynik-w-liczba" class="wynik-liczba">--/100</span>
+                    </div>
+
+                    <!-- Cel -->
+                    <div id="cel-w" class="cel-box"></div>
+
+                    <!-- Przycisk szczegółów -->
+                    <button class="btn-szczegoly" onclick="toggleSzczegoly('wulpinskie')">
+                        ▼ Szczegóły analizy
+                    </button>
+
+                    <!-- Rozbicie punktacji -->
+                    <div id="szczegoly-wulpinskie" class="szczegoly hidden">
+                        <h3>Rozbicie punktacji</h3>
+                        <div id="rozbicie-w" class="rozbicie-grid"></div>
+
+                        <h3>Warunki pogodowe</h3>
+                        <div id="pogoda-w" class="pogoda-grid"></div>
+
+                        <h3>Okna solunarne</h3>
+                        <div id="solunar-w" class="solunar-container"></div>
+
+                        <h3>Mapa poglądowa — łowiska</h3>
+                        <div id="mapa-w" class="mapa-container"></div>
+                        <div id="mapa-legenda-w"></div>
+
+                        <h3>Strefy głębokości</h3>
+                        <div id="strefy-w" class="strefy-container"></div>
+
+                        <h3>Łowiska</h3>
+                        <div id="lowiska-w" class="lowiska-lista"></div>
+
+                        <div class="gpx-upload">
+                            <h3>Wgraj własne punkty (GPX)</h3>
+                            <input type="file" id="gpx-w" accept=".gpx" class="gpx-input">
+                            <button class="btn-secondary" onclick="uploadGPX('wulpinskie')">Wgraj GPX</button>
+                            <div id="gpx-w-wynik" class="gpx-wynik"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sarąg -->
+                <div id="karta-sarag" class="jezioro-karta">
+                    <div class="karta-naglowek">
+                        <div>
+                            <h2>Jezioro Sarąg</h2>
+                            <p class="jezioro-meta">gm. Stawiguda · eutroficzne · płytsze</p>
+                        </div>
+                        <div id="wynik-s-badge" class="wynik-badge"></div>
+                    </div>
+
+                    <div id="rekomendacja-s" class="rekomendacja-box"></div>
+
+                    <div class="wynik-pasek-container">
+                        <div id="pasek-s" class="wynik-pasek">
+                            <div id="fill-s" class="wynik-fill"></div>
+                        </div>
+                        <span id="wynik-s-liczba" class="wynik-liczba">--/100</span>
+                    </div>
+
+                    <div id="cel-s" class="cel-box"></div>
+
+                    <button class="btn-szczegoly" onclick="toggleSzczegoly('sarag')">
+                        ▼ Szczegóły analizy
+                    </button>
+
+                    <div id="szczegoly-sarag" class="szczegoly hidden">
+                        <h3>Rozbicie punktacji</h3>
+                        <div id="rozbicie-s" class="rozbicie-grid"></div>
+
+                        <h3>Warunki pogodowe</h3>
+                        <div id="pogoda-s" class="pogoda-grid"></div>
+
+                        <h3>Okna solunarne</h3>
+                        <div id="solunar-s" class="solunar-container"></div>
+
+                        <h3>Mapa poglądowa — łowiska</h3>
+                        <div id="mapa-s" class="mapa-container"></div>
+                        <div id="mapa-legenda-s"></div>
+
+                        <h3>Strefy głębokości</h3>
+                        <div id="strefy-s" class="strefy-container"></div>
+
+                        <h3>Łowiska</h3>
+                        <div id="lowiska-s" class="lowiska-lista"></div>
+
+                        <div class="gpx-upload">
+                            <h3>Wgraj własne punkty (GPX)</h3>
+                            <input type="file" id="gpx-s" accept=".gpx" class="gpx-input">
+                            <button class="btn-secondary" onclick="uploadGPX('sarag')">Wgraj GPX</button>
+                            <div id="gpx-s-wynik" class="gpx-wynik"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LEGENDA METOD -->
+            <section class="sekcja-legenda">
+                <h2>Legenda metod &amp; sezonowości</h2>
+                <div class="legenda-grid">
+                    <div class="legenda-item"><span class="badge-metoda spin">spinning</span> Przynęty sztuczne</div>
+                    <div class="legenda-item"><span class="badge-metoda grunt">grunt</span> Wędka gruntowa</div>
+                    <div class="legenda-item"><span class="badge-metoda splaw">spławik</span> Wędka spławikowa</div>
+                    <div class="legenda-item"><span class="badge-metoda jig">jigging</span> Pionowe przynęty</div>
+                    <div class="legenda-item"><span class="badge-solunar glowne">●</span> Okno główne (2h)</div>
+                    <div class="legenda-item"><span class="badge-solunar mniejsze">◉</span> Okno mniejsze (1h)</div>
+                    <div class="legenda-item"><span class="badge-solunar swit">☀</span> Świt/zmierzch ±45min</div>
+                </div>
+            </section>
+
+            <!-- DZIENNIK POŁOWÓW -->
+            <section class="sekcja-dziennik" id="sekcja-dziennik">
+                <div class="dziennik-naglowek" onclick="toggleDziennik()">
+                    <span>📓 Dziennik połowów</span>
+                    <span id="dziennik-stats-mini" class="dziennik-stats-mini"></span>
+                    <span id="dziennik-strzalka" class="pref-strzalka">▼</span>
+                </div>
+                <div id="dziennik-panel" class="dziennik-panel hidden">
+
+                    <!-- Pasek narzędzi -->
+                    <div class="dziennik-toolbar">
+                        <button class="btn-primary-green" onclick="pokazFormularzWpisu()">➕ Nowy wpis</button>
+                        <span id="dziennik-rekord-info" class="dziennik-rekord-info"></span>
+                    </div>
+
+                    <!-- FORMULARZ NOWEGO WPISU -->
+                    <div id="dziennik-formularz" class="dziennik-formularz hidden">
+                        <h3>📝 Nowy wpis do dziennika</h3>
+
+                        <!-- Sekcja zdjęcia -->
+                        <div class="foto-sekcja">
+                            <label class="foto-label">
+                                📷 Zrób zdjęcie lub wybierz plik
+                                <input type="file" id="dziennik-zdjecie" accept="image/*" capture="environment"
+                                       onchange="obsluzdZdjecie(this.files[0])">
+                            </label>
+                            <div id="foto-podglad" class="foto-podglad hidden">
+                                <a id="foto-link" href="#" target="_blank">
+                                    <img id="foto-img" src="" alt="Zdjęcie ryby">
+                                </a>
+                                <button class="btn-foto-usun" onclick="usunZdjecie()">✕ Usuń zdjęcie</button>
+                            </div>
+                        </div>
+
+                        <!-- Karta wyników AI -->
+                        <div id="ai-wynik-karta" class="ai-wynik-karta hidden">
+                            <div class="ai-wynik-naglowek">🤖 Analiza AI — Claude Vision</div>
+                            <div id="ai-wynik-loader" class="ai-loader hidden">
+                                <div class="loader-spinner ai-spinner"></div>
+                                Analizowanie zdjęcia przez AI…
+                            </div>
+                            <div id="ai-wynik-tresc" class="ai-wynik-tresc hidden"></div>
+                            <button id="ai-zastosuj-btn" class="btn-primary-green ai-zastosuj hidden"
+                                    onclick="zastosujAI()">✓ Zastosuj wyniki AI do formularza</button>
+                        </div>
+
+                        <!-- Pola formularza -->
+                        <div class="formularz-grid">
+                            <div class="formularz-pole">
+                                <label for="wpis-gatunek">Gatunek ryby</label>
+                                <select id="wpis-gatunek">
+                                    <option value="">-- wybierz --</option>
+                                    <optgroup label="Wulpińskie &amp; Sarąg">
+                                        <option>Szczupak</option>
+                                        <option>Okoń</option>
+                                        <option>Leszcz</option>
+                                        <option>Lin</option>
+                                        <option>Płoć</option>
+                                        <option>Karaś</option>
+                                        <option>Wzdręga</option>
+                                        <option>Krąp</option>
+                                        <option>Jazgarz</option>
+                                        <option>Jaź</option>
+                                        <option>Sum</option>
+                                    </optgroup>
+                                    <optgroup label="Tylko Wulpińskie">
+                                        <option>Sandacz</option>
+                                        <option>Sieja</option>
+                                        <option>Sielawa</option>
+                                        <option>Węgorz</option>
+                                        <option>Miętus</option>
+                                    </optgroup>
+                                    <optgroup label="Tylko Sarąg">
+                                        <option>Karaś srebrzysty</option>
+                                        <option>Karp</option>
+                                        <option>Amur biały</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="formularz-pole">
+                                <label for="wpis-dlugosc">Długość (cm)</label>
+                                <input type="number" id="wpis-dlugosc" min="1" max="300" step="0.5" placeholder="np. 45">
+                            </div>
+                            <div class="formularz-pole">
+                                <label for="wpis-masa">Masa (g)</label>
+                                <input type="number" id="wpis-masa" min="1" max="50000" step="10" placeholder="np. 1500">
+                            </div>
+                            <div class="formularz-pole">
+                                <label for="wpis-jezioro">Jezioro</label>
+                                <select id="wpis-jezioro">
+                                    <option value="">-- wybierz --</option>
+                                    <option value="wulpinskie">Jezioro Wulpińskie</option>
+                                    <option value="sarag">Jezioro Sarąg</option>
+                                </select>
+                            </div>
+                            <div class="formularz-pole">
+                                <label for="wpis-metoda">Metoda połowu</label>
+                                <select id="wpis-metoda">
+                                    <option value="">-- dowolna --</option>
+                                    <option value="spinning">Spinning</option>
+                                    <option value="grunt">Grunt</option>
+                                    <option value="spławik">Spławik</option>
+                                    <option value="jigging">Jigging</option>
+                                    <option value="grunt nocny">Nocny</option>
+                                </select>
+                            </div>
+                            <div class="formularz-pole">
+                                <label for="wpis-przyneta">Przynęta / zanęta</label>
+                                <input type="text" id="wpis-przyneta" placeholder="np. Jig 10g biały, robak">
+                            </div>
+                            <div class="formularz-pole">
+                                <label for="wpis-data">Data i godzina połowu</label>
+                                <input type="datetime-local" id="wpis-data">
+                            </div>
+                            <div class="formularz-pole formularz-pole-full">
+                                <label for="wpis-notatki">Notatki</label>
+                                <textarea id="wpis-notatki" rows="2" placeholder="Warunki, miejsce, uwagi…"></textarea>
+                            </div>
+                            <div class="formularz-pole formularz-pole-full">
+                                <label class="cr-label">
+                                    <input type="checkbox" id="wpis-wypuszczono">
+                                    🔄 Wpis C&amp;R — ryba wypuszczona (catch &amp; release)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="formularz-akcje">
+                            <button class="btn-primary-green" onclick="zapiszWpis()">💾 Zapisz wpis</button>
+                            <button class="btn-ghost" onclick="anulujWpis()">✕ Anuluj</button>
+                        </div>
+                    </div><!-- /#dziennik-formularz -->
+
+                    <!-- Lista wpisów -->
+                    <div id="dziennik-lista" class="dziennik-lista"></div>
+
+                    <!-- Stan pusty -->
+                    <div id="dziennik-pusty" class="dziennik-pusty hidden">
+                        <div>🎣</div>
+                        <p>Brak wpisów w dzienniku.</p>
+                        <p style="margin-top:6px;font-size:.82rem">Kliknij <strong>➕ Nowy wpis</strong> i dodaj pierwsze złowienie!</p>
+                    </div>
+
+                    <!-- Statystyki -->
+                    <div id="dziennik-statystyki" class="dziennik-statystyki hidden"></div>
+
+                </div><!-- /#dziennik-panel -->
+            </section><!-- /.sekcja-dziennik -->
+
+        </div>
+    </main>
+
+    <footer>
+        <p>Dane pogodowe: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (bezpłatne, bez klucza API)
+        · Obliczenia solunarne: ephem · Wędkuj zgodnie z regulaminem PZW</p>
+    </footer>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

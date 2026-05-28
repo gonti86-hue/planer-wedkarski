@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logowanie — Planer Wędkarski</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="login-body">
+
+<div class="login-wrapper">
+    <div class="login-logo">
+        <span class="login-fish">🎣</span>
+        <h1>Planer Wędkarski</h1>
+        <p>Jezioro Wulpińskie &amp; Jezioro Sarąg</p>
+    </div>
+
+    <!-- ZAKŁADKI -->
+    <div class="login-tabs">
+        <button class="login-tab {% if blad_r %}{% else %}active{% endif %}"
+                id="tab-login" onclick="pokazTab('login')">
+            Zaloguj się
+        </button>
+        <button class="login-tab {% if blad_r %}active{% endif %}"
+                id="tab-register" onclick="pokazTab('register')">
+            Zarejestruj się
+        </button>
+    </div>
+
+    <!-- PANEL LOGOWANIA -->
+    <div class="login-panel" id="panel-login"
+         style="display:{% if blad_r %}none{% else %}block{% endif %}">
+        {% if blad_l %}
+        <div class="login-blad">⚠ {{ blad_l }}</div>
+        {% endif %}
+        <form method="POST" action="/login">
+            <input type="hidden" name="akcja" value="login">
+            <div class="login-pole">
+                <label>Nick</label>
+                <input type="text" name="username" autocomplete="username"
+                       placeholder="Twój nick" required autofocus>
+            </div>
+            <div class="login-pole">
+                <label>Hasło</label>
+                <input type="password" name="password" autocomplete="current-password"
+                       placeholder="Hasło" required>
+            </div>
+            <button type="submit" class="btn-login">➜ Zaloguj się</button>
+        </form>
+    </div>
+
+    <!-- PANEL REJESTRACJI -->
+    <div class="login-panel" id="panel-register"
+         style="display:{% if blad_r %}block{% else %}none{% endif %}">
+        {% if blad_r %}
+        <div class="login-blad">⚠ {{ blad_r }}</div>
+        {% endif %}
+        <form method="POST" action="/login">
+            <input type="hidden" name="akcja" value="register">
+            <div class="login-pole">
+                <label>Nick <small>(3–20 znaków: litery, cyfry, _ lub -)</small></label>
+                <input type="text" name="reg_username" autocomplete="username"
+                       placeholder="Wybierz nick" required
+                       pattern="[a-zA-Z0-9_\-]{3,20}" title="3–20 znaków: litery, cyfry, _ lub -">
+            </div>
+            <div class="login-pole">
+                <label>Hasło <small>(min. 4 znaki)</small></label>
+                <input type="password" name="reg_password" autocomplete="new-password"
+                       placeholder="Wybierz hasło" required minlength="4">
+            </div>
+            <div class="login-pole">
+                <label>Powtórz hasło</label>
+                <input type="password" name="reg_password2" autocomplete="new-password"
+                       placeholder="Powtórz hasło" required minlength="4">
+            </div>
+            <button type="submit" class="btn-login btn-login-green">✓ Zarejestruj się</button>
+        </form>
+    </div>
+
+    <p class="login-info">
+        Każdy użytkownik ma swój prywatny dziennik połowów.<br>
+        Dane pogodowe i mapy są wspólne dla wszystkich.
+    </p>
+</div>
+
+<script>
+function pokazTab(ktory) {
+    document.getElementById('panel-login').style.display    = ktory === 'login'    ? 'block' : 'none';
+    document.getElementById('panel-register').style.display = ktory === 'register' ? 'block' : 'none';
+    document.getElementById('tab-login').classList.toggle('active',    ktory === 'login');
+    document.getElementById('tab-register').classList.toggle('active', ktory === 'register');
+}
+</script>
+
+</body>
+</html>

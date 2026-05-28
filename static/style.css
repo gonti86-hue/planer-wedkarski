@@ -1,0 +1,913 @@
+/* ===== RESET & ZMIENNE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --ziel: #2d6a4f;
+    --ziel-jasny: #40916c;
+    --ziel-mid: #52b788;
+    --ziel-pale: #d8f3dc;
+    --niebieski: #1d6fa5;
+    --niebieski-pale: #dbeafe;
+    --zolty: #f59e0b;
+    --czerwony: #dc2626;
+    --szary: #64748b;
+    --szary-pale: #f1f5f9;
+    --biel: #ffffff;
+    --tekst: #1e293b;
+    --tekst-mid: #475569;
+    --cien: 0 2px 12px rgba(0,0,0,.10);
+    --cien-mocny: 0 4px 24px rgba(0,0,0,.15);
+    --r: 12px;
+    --r-sm: 8px;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%);
+    color: var(--tekst);
+    min-height: 100vh;
+    line-height: 1.5;
+}
+
+/* ===== HEADER ===== */
+header {
+    background: linear-gradient(135deg, var(--ziel) 0%, var(--niebieski) 100%);
+    color: var(--biel);
+    padding: 18px 24px;
+    box-shadow: var(--cien-mocny);
+    position: sticky; top: 0; z-index: 100;
+}
+.header-content {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    flex-wrap: wrap;
+}
+.header-title { display: flex; align-items: center; gap: 14px; }
+.fish-icon { font-size: 2.2rem; }
+header h1 { font-size: 1.5rem; font-weight: 700; }
+.subtitle { font-size: .85rem; opacity: .85; }
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.timestamp { font-size: .8rem; opacity: .75; white-space: nowrap; }
+
+/* ===== PRZYCISKI ===== */
+.btn-primary {
+    background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.6);
+    color: #fff; padding: 8px 18px; border-radius: 8px; cursor: pointer;
+    font-size: .9rem; font-weight: 600; transition: all .2s;
+}
+.btn-primary:hover { background: rgba(255,255,255,.35); }
+.btn-secondary {
+    background: var(--ziel-pale); border: 1px solid var(--ziel-mid);
+    color: var(--ziel); padding: 6px 14px; border-radius: 6px; cursor: pointer;
+    font-size: .85rem; transition: all .2s;
+}
+.btn-secondary:hover { background: var(--ziel-mid); color: #fff; }
+.btn-szczegoly {
+    width: 100%; padding: 10px; border: 1px dashed #cbd5e1; background: var(--szary-pale);
+    border-radius: var(--r-sm); cursor: pointer; font-size: .875rem; color: var(--szary);
+    transition: all .2s; margin-top: 12px;
+}
+.btn-szczegoly:hover { background: #e2e8f0; }
+
+/* ===== MAIN ===== */
+main {
+    max-width: 1200px; margin: 24px auto; padding: 0 16px;
+}
+
+/* ===== LOADER ===== */
+.loader-container {
+    text-align: center; padding: 80px 20px; color: var(--szary);
+}
+.loader-spinner {
+    width: 52px; height: 52px; margin: 0 auto 20px;
+    border: 4px solid #e2e8f0; border-top-color: var(--ziel-jasny);
+    border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== BANER BŁĘDU ===== */
+.baner-blad {
+    background: #fef2f2; border: 1px solid #fecaca; color: var(--czerwony);
+    padding: 14px 18px; border-radius: var(--r-sm); margin-bottom: 16px;
+}
+
+/* ===== WERDYKT ===== */
+.sekcja-werdykt {
+    background: var(--biel); border-radius: var(--r); box-shadow: var(--cien);
+    padding: 20px 24px; margin-bottom: 20px; text-align: center;
+}
+.werdykt-tekst {
+    font-size: 1.25rem; font-weight: 700; color: var(--ziel);
+}
+.werdykt-remis { color: var(--szary); }
+.werdykt-zwyciezca { color: var(--ziel); }
+
+/* ===== GRID JEZIOR ===== */
+.jeziora-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;
+}
+@media (max-width: 768px) { .jeziora-grid { grid-template-columns: 1fr; } }
+
+/* ===== KARTA JEZIORA ===== */
+.jezioro-karta {
+    background: var(--biel); border-radius: var(--r); box-shadow: var(--cien);
+    padding: 20px; border: 2px solid transparent; transition: border-color .3s;
+}
+.jezioro-karta.karta-zwyciezca { border-color: var(--ziel-mid); }
+.karta-naglowek { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.karta-naglowek h2 { font-size: 1.15rem; color: var(--ziel); }
+.jezioro-meta { font-size: .8rem; color: var(--szary); margin-top: 2px; }
+
+/* ===== BADGE WYNIKU ===== */
+.wynik-badge {
+    min-width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.badge-doskonale { background: linear-gradient(135deg, #16a34a, #4ade80); }
+.badge-dobre { background: linear-gradient(135deg, var(--ziel-jasny), #86efac); }
+.badge-przecietne { background: linear-gradient(135deg, #ca8a04, #facc15); }
+.badge-slabe { background: linear-gradient(135deg, #ea580c, #fb923c); }
+.badge-niezalecane { background: linear-gradient(135deg, var(--czerwony), #f87171); }
+
+/* ===== PASEK WYNIKU ===== */
+.wynik-pasek-container { display: flex; align-items: center; gap: 10px; margin: 12px 0; }
+.wynik-pasek {
+    flex: 1; height: 14px; background: #e2e8f0; border-radius: 7px; overflow: hidden;
+}
+.wynik-fill {
+    height: 100%; border-radius: 7px; width: 0;
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+    background: linear-gradient(90deg, var(--ziel-mid), var(--ziel));
+}
+.wynik-liczba { font-size: .9rem; font-weight: 700; color: var(--ziel); white-space: nowrap; }
+
+/* ===== REKOMENDACJA BOX ===== */
+.rekomendacja-box {
+    background: var(--ziel-pale); border-left: 4px solid var(--ziel-mid);
+    padding: 10px 14px; border-radius: 0 var(--r-sm) var(--r-sm) 0;
+    font-size: .875rem; color: var(--tekst-mid); margin-bottom: 8px;
+}
+
+/* ===== CEL BOX ===== */
+.cel-box {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;
+}
+.cel-chip {
+    background: var(--niebieski-pale); color: var(--niebieski);
+    padding: 4px 10px; border-radius: 20px; font-size: .8rem; font-weight: 600;
+}
+.cel-chip.metoda { background: #fef9c3; color: #92400e; }
+.cel-chip.lowisko { background: #f0fdf4; color: var(--ziel); }
+.cel-chip.glebokosc { background: #ede9fe; color: #6d28d9; }
+
+/* ===== SZCZEGÓŁY ===== */
+.szczegoly { margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+.szczegoly h3 { font-size: .9rem; color: var(--szary); text-transform: uppercase;
+    letter-spacing: .05em; margin: 16px 0 10px; }
+.szczegoly h3:first-child { margin-top: 0; }
+
+/* ===== ROZBICIE PUNKTACJI ===== */
+.rozbicie-grid { display: grid; gap: 8px; }
+.rozbicie-item {
+    display: grid; grid-template-columns: 140px 1fr 60px; align-items: center; gap: 10px;
+    padding: 8px 12px; background: var(--szary-pale); border-radius: var(--r-sm);
+}
+.rozbicie-label { font-size: .8rem; font-weight: 600; color: var(--tekst-mid); }
+.rozbicie-bar-wrap { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.rozbicie-bar {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--ziel-mid), var(--ziel));
+    transition: width .8s ease;
+}
+.rozbicie-bar.bar-slaby { background: linear-gradient(90deg, #fb923c, #ea580c); }
+.rozbicie-bar.bar-sredni { background: linear-gradient(90deg, #facc15, #ca8a04); }
+.rozbicie-wynik { text-align: right; font-size: .85rem; font-weight: 700; color: var(--ziel); }
+.rozbicie-opis { grid-column: 1 / -1; font-size: .78rem; color: var(--szary); padding-top: 2px; }
+
+/* ===== POGODA ===== */
+.pogoda-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.pogoda-tile {
+    background: var(--szary-pale); border-radius: var(--r-sm); padding: 10px 12px;
+    text-align: center;
+}
+.pogoda-ikona { font-size: 1.6rem; margin-bottom: 4px; }
+.pogoda-wartosc { font-size: 1rem; font-weight: 700; color: var(--tekst); }
+.pogoda-etykieta { font-size: .72rem; color: var(--szary); margin-top: 2px; }
+.tendencja-chip {
+    display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: .75rem;
+    font-weight: 600; margin-top: 4px;
+}
+.tend-rosnace { background: #dcfce7; color: #15803d; }
+.tend-spadajace { background: #fef9c3; color: #92400e; }
+.tend-stabilne { background: var(--szary-pale); color: var(--szary); }
+.tend-gwaltowne { background: #fee2e2; color: var(--czerwony); }
+
+/* ===== SOLUNAR ===== */
+.solunar-container {}
+.solunar-faza {
+    display: flex; gap: 12px; align-items: center;
+    background: #0f172a; color: #e2e8f0; border-radius: var(--r-sm);
+    padding: 12px 16px; margin-bottom: 12px;
+}
+.solunar-ksiezyc { font-size: 2rem; }
+.solunar-okna { display: grid; gap: 6px; }
+.okno-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: var(--r-sm); border: 1px solid #e2e8f0;
+    background: var(--szary-pale); font-size: .82rem;
+}
+.okno-item.aktywne { background: #ecfdf5; border-color: var(--ziel-mid); font-weight: 700; }
+.okno-czas { font-weight: 700; min-width: 70px; color: var(--ziel); }
+.okno-typ { color: var(--tekst-mid); }
+.okno-badge { margin-left: auto; font-size: .72rem; padding: 2px 6px; border-radius: 8px; }
+.okno-badge.glowne { background: var(--ziel-pale); color: var(--ziel); }
+.okno-badge.mniejsze { background: var(--niebieski-pale); color: var(--niebieski); }
+.okno-badge.aktyw { background: var(--ziel); color: #fff; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+/* ===== STREFY GŁĘBOKOŚCI ===== */
+.strefy-container { display: grid; gap: 8px; }
+.strefa-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; border-radius: var(--r-sm); background: var(--szary-pale);
+}
+.strefa-kolor {
+    width: 16px; height: 36px; border-radius: 4px; flex-shrink: 0;
+}
+.strefa-0 { background: linear-gradient(180deg, #a7f3d0, #6ee7b7); }
+.strefa-1 { background: linear-gradient(180deg, #67e8f9, #22d3ee); }
+.strefa-2 { background: linear-gradient(180deg, #38bdf8, #0284c7); }
+.strefa-3 { background: linear-gradient(180deg, #1d4ed8, #1e3a5f); }
+.strefa-info { flex: 1; }
+.strefa-nazwa { font-size: .85rem; font-weight: 600; }
+.strefa-zakres { font-size: .78rem; color: var(--szary); }
+
+/* ===== ŁOWISKA ===== */
+.lowiska-lista { display: grid; gap: 8px; }
+.lowisko-item {
+    padding: 10px 14px; border-radius: var(--r-sm);
+    border: 1px solid #e2e8f0; background: #fafafa;
+}
+.lowisko-naglowek { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.lowisko-nazwa { font-size: .875rem; font-weight: 600; color: var(--ziel); }
+.lowisko-id { font-size: .72rem; background: #e2e8f0; padding: 2px 6px; border-radius: 6px; color: var(--szary); }
+.lowisko-opis { font-size: .78rem; color: var(--szary); margin-top: 4px; }
+.lowisko-gatunki { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.gatunek-tag {
+    font-size: .72rem; padding: 2px 8px; border-radius: 10px;
+    background: var(--ziel-pale); color: var(--ziel); font-weight: 500;
+}
+.lowisko-gps { font-size: .72rem; color: #94a3b8; margin-top: 4px; }
+.gps-placeholder { color: #fbbf24; }
+
+/* ===== GPX UPLOAD ===== */
+.gpx-upload {
+    margin-top: 16px; padding: 14px; background: #f8fafc;
+    border: 2px dashed #cbd5e1; border-radius: var(--r-sm);
+}
+.gpx-upload h3 { margin-bottom: 10px; }
+.gpx-input { display: block; margin-bottom: 8px; font-size: .85rem; }
+.gpx-wynik { margin-top: 8px; font-size: .82rem; color: var(--ziel); }
+.gpx-wynik.blad { color: var(--czerwony); }
+
+/* ===== LEGENDA ===== */
+.sekcja-legenda {
+    background: var(--biel); border-radius: var(--r); box-shadow: var(--cien);
+    padding: 20px 24px; margin-bottom: 20px;
+}
+.sekcja-legenda h2 { font-size: 1rem; color: var(--szary); margin-bottom: 14px; }
+.legenda-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.legenda-item { display: flex; align-items: center; gap: 8px; font-size: .82rem; color: var(--tekst-mid); }
+.badge-metoda { padding: 2px 8px; border-radius: 10px; font-size: .75rem; font-weight: 600; }
+.spin { background: #fce7f3; color: #9d174d; }
+.grunt { background: #fef3c7; color: #92400e; }
+.splaw { background: #dbeafe; color: #1e40af; }
+.jig { background: #ede9fe; color: #6d28d9; }
+.badge-solunar { font-size: 1rem; }
+.glowne { color: var(--ziel); }
+.mniejsze { color: var(--niebieski); }
+.swit { color: #f59e0b; }
+
+/* ===== FOOTER ===== */
+footer {
+    text-align: center; padding: 20px; font-size: .78rem; color: var(--szary);
+}
+footer a { color: var(--ziel-jasny); text-decoration: none; }
+
+/* ===== PREFERENCJE ===== */
+.sekcja-preferencje {
+    background: var(--biel); border-radius: var(--r); box-shadow: var(--cien);
+    margin-bottom: 20px; overflow: hidden;
+}
+
+.pref-naglowek {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 20px; cursor: pointer; user-select: none;
+    font-weight: 700; font-size: 1rem; color: var(--ziel);
+    transition: background .15s;
+}
+.pref-naglowek:hover { background: var(--szary-pale); }
+
+.pref-podsum {
+    flex: 1; font-size: .82rem; font-weight: 400; color: var(--szary);
+}
+.pref-strzalka { font-size: .8rem; color: var(--szary); transition: transform .2s; }
+.pref-strzalka.open { transform: rotate(180deg); }
+
+.pref-panel { padding: 0 20px 18px; border-top: 1px solid #e2e8f0; }
+
+.pref-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px;
+    padding-top: 16px;
+}
+@media (max-width: 900px) { .pref-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .pref-grid { grid-template-columns: 1fr; } }
+
+.pref-group {}
+
+.pref-label {
+    font-size: .78rem; font-weight: 700; color: var(--szary);
+    text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px;
+}
+
+.pref-radio-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.pref-wrap { flex-wrap: wrap; }
+
+.pref-radio {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 10px; border-radius: 20px; border: 1.5px solid #e2e8f0;
+    font-size: .82rem; cursor: pointer; transition: all .15s; white-space: nowrap;
+    background: var(--szary-pale);
+}
+.pref-radio:has(input:checked),
+.pref-radio.active {
+    background: var(--ziel-pale); border-color: var(--ziel-mid); color: var(--ziel); font-weight: 700;
+}
+.pref-radio input { display: none; }
+
+.pref-select {
+    width: 100%; padding: 7px 10px; border-radius: 8px;
+    border: 1.5px solid #e2e8f0; background: var(--szary-pale);
+    font-size: .85rem; color: var(--tekst); cursor: pointer; outline: none;
+}
+.pref-select:focus { border-color: var(--ziel-mid); }
+
+/* ===== MULTI-SELECT GATUNKÓW ===== */
+.pref-group-gatunki {
+    grid-column: 1 / -1;   /* rozciąga na całą szerokość gridu */
+}
+.pref-gatunki-lista {
+    display: flex; flex-direction: column; gap: 6px;
+}
+.pref-gatunki-kat {
+    font-size: .7rem; font-weight: 700; color: var(--szary);
+    text-transform: uppercase; letter-spacing: .07em;
+    margin-top: 6px; margin-bottom: 2px;
+}
+.pref-check-row {
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+/* Licznik wybranych */
+.pref-gatunki-liczba {
+    font-size: .76rem; font-weight: 400; color: var(--ziel-jasny);
+    margin-left: 6px;
+}
+/* Przycisk "wyczyść" obok labela */
+.btn-clear-gatunki {
+    background: none; border: 1px solid #e2e8f0; color: var(--szary);
+    padding: 2px 8px; border-radius: 6px; cursor: pointer;
+    font-size: .72rem; margin-left: 8px; transition: all .15s;
+    vertical-align: middle;
+}
+.btn-clear-gatunki:hover { border-color: #94a3b8; color: var(--tekst-mid); }
+
+.pref-akcje {
+    display: flex; gap: 10px; margin-top: 16px; padding-top: 14px;
+    border-top: 1px solid #f1f5f9; flex-wrap: wrap;
+}
+
+.btn-primary-green {
+    background: var(--ziel-jasny); color: white; border: none;
+    padding: 9px 20px; border-radius: 8px; font-size: .88rem; font-weight: 700;
+    cursor: pointer; transition: background .2s;
+}
+.btn-primary-green:hover { background: var(--ziel); }
+
+.btn-ghost {
+    background: none; border: 1.5px solid #e2e8f0; color: var(--szary);
+    padding: 9px 16px; border-radius: 8px; font-size: .85rem; cursor: pointer;
+    transition: all .2s;
+}
+.btn-ghost:hover { border-color: #94a3b8; color: var(--tekst-mid); }
+
+/* Badge dopasowania w karcie */
+.dopas-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px; font-size: .78rem; font-weight: 700;
+    margin-top: 8px;
+}
+.dopas-doskonale { background: #dcfce7; color: #15803d; }
+.dopas-dobre     { background: #d1fae5; color: #047857; }
+.dopas-srednie   { background: #fef9c3; color: #92400e; }
+.dopas-slabe     { background: #fee2e2; color: #b91c1c; }
+.dopas-brak      { background: var(--szary-pale); color: var(--szary); }
+
+/* Podświetlenie preferowanego jeziora */
+.jezioro-karta.pref-jezioro {
+    border-color: var(--ziel) !important;
+    box-shadow: 0 0 0 3px rgba(64,145,108,.18), var(--cien);
+}
+.pref-banner {
+    background: var(--ziel-pale); color: var(--ziel);
+    font-size: .78rem; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; margin-bottom: 8px; display: inline-block;
+}
+
+/* ===== MAPA POGLĄDOWA (Leaflet) ===== */
+.mapa-container {
+    height: 360px; border-radius: 8px; overflow: hidden;
+    margin-bottom: 6px; box-shadow: 0 1px 6px rgba(0,0,0,.12);
+}
+@media (max-width: 600px) { .mapa-container { height: 280px; } }
+
+.mapa-spot-legenda { margin-top: 10px; }
+
+.spot-leg-naglowek {
+    font-size: .78rem; font-weight: 700; color: var(--szary);
+    text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px;
+}
+
+.spot-leg-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+@media (max-width: 520px) { .spot-leg-grid { grid-template-columns: 1fr; } }
+
+.spot-leg-item {
+    display: flex; gap: 8px; align-items: flex-start;
+    padding: 7px 10px; background: var(--szary-pale);
+    border-radius: 6px; border-left: 3px solid #e2e8f0;
+}
+
+.spot-leg-nr {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    color: white; font-weight: 800; font-size: .8rem; flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+
+.spot-leg-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.spot-leg-info strong { font-size: .82rem; color: var(--tekst); }
+.spot-leg-info span { color: var(--szary); font-size: .74rem; line-height: 1.3; }
+
+.mapa-plh-box {
+    margin-top: 10px; padding: 8px 12px;
+    background: #fefce8; border-radius: 6px; border: 1px solid #fef08a;
+    font-size: .78rem; line-height: 1.6;
+}
+.mapa-plh-title { color: #854d0e; font-weight: 600; margin-right: 4px; }
+.mapa-plh-tag {
+    display: inline-block; margin: 2px 3px;
+    padding: 1px 8px; background: #fef9c3; border-radius: 10px;
+    color: #713f12; font-size: .76rem;
+}
+
+/* ===== CHIPY OCHRONY GATUNKÓW (fix: ichtiolog) ===== */
+.chip-zakaz  { background: #fee2e2 !important; color: #991b1b !important; font-weight: 800 !important; border: 1px solid #fca5a5 !important; }
+.chip-ochron { background: #fef9c3 !important; color: #713f12 !important; font-weight: 700 !important; border: 1px solid #fde68a !important; }
+.chip-wymiar { background: #ede9fe !important; color: #5b21b6 !important; font-weight: 600 !important; }
+
+/* ===== OSTRZEŻENIA (fix: UX + algorytm) ===== */
+.ostrzezenie-item {
+    display: flex; align-items: flex-start; gap: 6px;
+    background: #fef2f2; border-left: 3px solid #ef4444; color: #991b1b;
+    padding: 7px 12px; border-radius: 0 6px 6px 0;
+    font-size: .8rem; font-weight: 600; margin-top: 6px; line-height: 1.4;
+}
+.ostrzezenie-item:has(🌡) { background: #fff7ed; border-color: #f97316; color: #9a3412; }
+.ostrzezenie-item:has(⚠)  { background: #fefce8; border-color: #eab308; color: #713f12; }
+.ostrzezenie-item:has(⛈)  { background: #fef3c7; border-color: #f59e0b; color: #78350f; }
+
+/* ===== LOADER KONTURU OSM (fix: UX) ===== */
+.mapa-osm-loader {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    background: rgba(255,255,255,.92); padding: 5px 14px; border-radius: 14px;
+    font-size: .75rem; color: var(--szary); box-shadow: 0 1px 6px rgba(0,0,0,.18);
+    z-index: 1000; pointer-events: none;
+    animation: pulse 1.5s ease-in-out infinite;
+    white-space: nowrap;
+}
+
+/* ===== TRYB GPS — baner instrukcji na mapie ===== */
+.gps-tryb-baner {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    background: #7c3aed; color: #fff;
+    padding: 8px 16px; border-radius: 20px;
+    font-size: .82rem; font-weight: 600;
+    box-shadow: 0 3px 12px rgba(124,58,237,.45);
+    z-index: 1100; white-space: nowrap;
+    animation: pulse 1.5s ease-in-out infinite;
+    display: none;
+}
+.gps-baner-anuluj {
+    background: rgba(255,255,255,.25); border: 1px solid rgba(255,255,255,.5);
+    color: #fff; padding: 2px 10px; border-radius: 10px;
+    cursor: pointer; font-size: .78rem; margin-left: 10px;
+    transition: background .15s;
+}
+.gps-baner-anuluj:hover { background: rgba(255,255,255,.4); }
+
+/* ===== LEGENDA GŁĘBOKOŚCI (Leaflet overlay) ===== */
+.leaflet-depth-legend {
+    background: rgba(255,255,255,.93);
+    border-radius: 8px;
+    padding: 10px 13px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.20);
+    font-size: .76rem;
+    min-width: 155px;
+    pointer-events: none;
+}
+.depth-leg-title {
+    font-size: .70rem;
+    font-weight: 700;
+    color: var(--szary);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 7px;
+}
+.depth-leg-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 5px;
+    color: var(--tekst-mid);
+    font-size: .74rem;
+    white-space: nowrap;
+}
+.depth-leg-item:last-child { margin-bottom: 0; }
+.depth-leg-swatch {
+    display: inline-block;
+    width: 13px; height: 13px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,.15);
+    flex-shrink: 0;
+}
+
+/* ===== MOBILE FIXES (fix: mobile UX specialist) ===== */
+@media (max-width: 600px) {
+    .mapa-container { height: 260px; }
+    .rozbicie-item  { grid-template-columns: 100px 1fr 44px; gap: 6px; }
+    .pref-grid      { grid-template-columns: 1fr; }
+    .pogoda-grid    { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+    .legenda-grid   { grid-template-columns: 1fr; }
+    .spot-leg-grid  { grid-template-columns: 1fr; }
+    header h1       { font-size: 1.2rem; }
+    .cel-box        { gap: 5px; }
+    .cel-chip       { font-size: .74rem; padding: 3px 8px; }
+}
+
+/* ===== UTILS ===== */
+.hidden { display: none !important; }
+
+/* ===== KARTA RYBY — zdjęcie + szansa połowu ===== */
+.ryba-karta {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--szary-pale); border-radius: var(--r-sm);
+    padding: 12px 14px; margin: 10px 0 4px;
+    border: 1px solid #e2e8f0;
+}
+.ryba-info {
+    flex: 1; min-width: 0;
+}
+.ryba-nazwa {
+    font-size: 1rem; font-weight: 800; color: var(--tekst);
+    margin-bottom: 5px;
+}
+.ryba-szansa-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 5px;
+}
+.szansa-label { font-size: .75rem; color: var(--szary); }
+.szansa-badge {
+    padding: 2px 10px; border-radius: 20px;
+    font-size: .82rem; font-weight: 800;
+}
+.szansa-dobra   { background: #dcfce7; color: #15803d; }
+.szansa-srednia { background: #fef9c3; color: #92400e; }
+.szansa-slaba   { background: #fee2e2; color: #b91c1c; }
+
+.szansa-pasek-wrap {
+    height: 8px; background: #e2e8f0; border-radius: 4px;
+    overflow: hidden; margin-bottom: 4px;
+}
+.szansa-fill {
+    height: 100%; border-radius: 4px; width: 0;
+    transition: width 1.1s cubic-bezier(.4,0,.2,1);
+}
+.szansa-fill.szansa-dobra   { background: linear-gradient(90deg, #4ade80, #16a34a); }
+.szansa-fill.szansa-srednia { background: linear-gradient(90deg, #facc15, #ca8a04); }
+.szansa-fill.szansa-slaba   { background: linear-gradient(90deg, #f87171, #dc2626); }
+
+.szansa-opis {
+    font-size: .73rem; color: var(--szary); font-style: italic;
+}
+
+/* ===== DZIENNIK POŁOWÓW ===== */
+.sekcja-dziennik {
+    background: var(--biel); border-radius: var(--r); box-shadow: var(--cien);
+    margin-bottom: 20px; overflow: hidden;
+}
+.dziennik-naglowek {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 20px; cursor: pointer; user-select: none;
+    font-weight: 700; font-size: 1rem; color: #5b21b6;
+    transition: background .15s;
+}
+.dziennik-naglowek:hover { background: var(--szary-pale); }
+.dziennik-stats-mini {
+    flex: 1; font-size: .82rem; font-weight: 400; color: var(--szary);
+}
+.dziennik-panel {
+    padding: 0 20px 20px; border-top: 1px solid #e2e8f0;
+}
+.dziennik-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; padding-top: 16px; margin-bottom: 14px;
+}
+.dziennik-rekord-info { font-size: .8rem; color: var(--szary); }
+
+/* --- FORMULARZ --- */
+.dziennik-formularz {
+    background: #f8f8ff; border: 1.5px solid #c4b5fd;
+    border-radius: var(--r); padding: 18px 20px; margin-bottom: 16px;
+}
+.dziennik-formularz h3 {
+    font-size: .95rem; color: #5b21b6; margin-bottom: 14px;
+    padding-bottom: 10px; border-bottom: 1px solid #e0d7ff;
+}
+
+/* --- FOTO --- */
+.foto-sekcja { margin-bottom: 14px; }
+.foto-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #5b21b6; color: white;
+    padding: 9px 18px; border-radius: 8px; cursor: pointer;
+    font-size: .875rem; font-weight: 600; transition: background .2s;
+    user-select: none;
+}
+.foto-label:hover { background: #4c1d95; }
+.foto-label input[type="file"] { display: none; }
+.foto-podglad {
+    margin-top: 10px; display: flex; align-items: flex-start; gap: 12px;
+    flex-wrap: wrap;
+}
+.foto-podglad img {
+    max-width: 160px; max-height: 140px; border-radius: 8px;
+    object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.btn-foto-usun {
+    background: none; border: 1px solid #fca5a5; color: var(--czerwony);
+    padding: 5px 10px; border-radius: 6px; cursor: pointer;
+    font-size: .8rem; transition: all .2s; align-self: flex-start;
+}
+.btn-foto-usun:hover { background: #fee2e2; }
+
+/* --- AI KARTA --- */
+.ai-wynik-karta {
+    background: #f5f3ff; border: 1.5px solid #c4b5fd;
+    border-radius: 8px; padding: 14px 16px; margin-bottom: 14px;
+}
+.ai-wynik-naglowek {
+    font-size: .78rem; font-weight: 700; color: #5b21b6;
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px;
+}
+.ai-loader {
+    display: flex; align-items: center; gap: 10px;
+    font-size: .85rem; color: var(--szary);
+}
+.ai-spinner {
+    width: 24px !important; height: 24px !important;
+    margin: 0 !important; border-width: 3px !important;
+    flex-shrink: 0;
+}
+.ai-wynik-tresc {}
+.ai-wynik-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .85rem; padding: 3px 0;
+}
+.ai-wynik-label { color: var(--szary); min-width: 82px; font-size: .78rem; }
+.ai-gatunek  { font-weight: 700; font-size: .95rem; color: var(--tekst); }
+.ai-dlugosc  { font-weight: 700; color: #2563eb; font-size: .9rem; }
+.ai-spelnia  { padding: 2px 8px; border-radius: 10px; font-size: .75rem; font-weight: 700; }
+.ai-spelnia.ok   { background: #dcfce7; color: #15803d; }
+.ai-spelnia.nie  { background: #fee2e2; color: #b91c1c; }
+.ai-spelnia.brak { background: #fef9c3; color: #92400e; }
+.ai-pewnosc { padding: 2px 8px; border-radius: 10px; font-size: .75rem; font-weight: 700; }
+.ai-pewnosc-wysoka  { background: #dcfce7; color: #15803d; }
+.ai-pewnosc-srednia { background: #fef9c3; color: #92400e; }
+.ai-pewnosc-niska   { background: #fee2e2; color: #b91c1c; }
+.ai-odniesienie  { font-size: .74rem; color: var(--szary); margin-left: auto; }
+.ai-opis {
+    font-size: .8rem; color: var(--tekst-mid); margin-top: 8px;
+    padding-top: 8px; border-top: 1px solid #e0d7ff;
+    line-height: 1.5; font-style: italic;
+}
+.ai-blad { color: var(--czerwony); font-size: .85rem; }
+.ai-zastosuj { margin-top: 12px; font-size: .82rem !important; padding: 7px 14px !important; }
+
+/* --- POLA FORMULARZA --- */
+.formularz-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+@media (max-width: 600px) { .formularz-grid { grid-template-columns: 1fr; } }
+
+.formularz-pole label {
+    display: block; font-size: .76rem; font-weight: 700;
+    color: var(--szary); text-transform: uppercase;
+    letter-spacing: .04em; margin-bottom: 5px;
+}
+.formularz-pole input,
+.formularz-pole select,
+.formularz-pole textarea {
+    width: 100%; padding: 8px 10px; border-radius: 7px;
+    border: 1.5px solid #e2e8f0; background: white;
+    font-size: .875rem; color: var(--tekst); outline: none;
+    transition: border-color .15s; font-family: inherit;
+}
+.formularz-pole input:focus,
+.formularz-pole select:focus,
+.formularz-pole textarea:focus { border-color: #a78bfa; }
+.formularz-pole textarea { resize: vertical; min-height: 58px; }
+.formularz-pole-full { grid-column: 1 / -1; }
+.cr-label {
+    display: flex !important; align-items: center; gap: 8px;
+    font-size: .875rem !important; font-weight: normal !important;
+    text-transform: none !important; letter-spacing: 0 !important;
+    color: var(--tekst) !important; cursor: pointer;
+}
+.cr-label input { width: auto !important; margin: 0; cursor: pointer; }
+.formularz-akcje {
+    display: flex; gap: 10px; margin-top: 16px;
+    padding-top: 14px; border-top: 1px solid #e0d7ff; flex-wrap: wrap;
+}
+
+/* ===== USER BADGE W HEADERZE ===== */
+.user-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.15); border-radius: 20px;
+    padding: 5px 10px 5px 12px;
+}
+.user-nick {
+    font-size: .82rem; font-weight: 600; color: #fff;
+    white-space: nowrap;
+}
+.btn-logout {
+    font-size: .78rem; font-weight: 600;
+    background: rgba(255,255,255,.25); color: #fff;
+    border: 1px solid rgba(255,255,255,.4); border-radius: 12px;
+    padding: 3px 10px; text-decoration: none; white-space: nowrap;
+    transition: background .15s;
+}
+.btn-logout:hover { background: rgba(255,255,255,.4); }
+
+/* ===== STRONA LOGOWANIA ===== */
+.login-body {
+    background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+}
+.login-wrapper {
+    background: #fff; border-radius: var(--r);
+    box-shadow: var(--cien-mocny);
+    width: 100%; max-width: 420px;
+    padding: 32px 28px 24px;
+}
+.login-logo {
+    text-align: center; margin-bottom: 24px;
+}
+.login-fish { font-size: 3rem; display: block; margin-bottom: 6px; }
+.login-logo h1 {
+    font-size: 1.4rem; font-weight: 700;
+    color: var(--ziel);
+}
+.login-logo p {
+    font-size: .8rem; color: var(--tekst-mid); margin-top: 2px;
+}
+.login-tabs {
+    display: flex; border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 20px; gap: 0;
+}
+.login-tab {
+    flex: 1; padding: 10px 4px;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    margin-bottom: -2px; cursor: pointer;
+    font-size: .9rem; font-weight: 600; color: var(--szary);
+    transition: color .15s, border-color .15s;
+}
+.login-tab.active {
+    color: var(--ziel); border-bottom-color: var(--ziel);
+}
+.login-tab:hover:not(.active) { color: var(--tekst); }
+.login-panel { animation: fadeIn .15s ease; }
+.login-blad {
+    background: #fef2f2; color: var(--czerwony);
+    border: 1px solid #fecaca; border-radius: var(--r-sm);
+    padding: 10px 12px; font-size: .875rem;
+    margin-bottom: 14px;
+}
+.login-pole { margin-bottom: 14px; }
+.login-pole label {
+    display: block; font-size: .8rem; font-weight: 600;
+    color: var(--tekst-mid); margin-bottom: 5px;
+}
+.login-pole label small { font-weight: 400; color: #94a3b8; }
+.login-pole input {
+    width: 100%; padding: 10px 12px;
+    border: 1.5px solid #e2e8f0; border-radius: var(--r-sm);
+    font-size: .95rem; color: var(--tekst);
+    transition: border-color .15s;
+    outline: none;
+}
+.login-pole input:focus { border-color: var(--ziel-mid); }
+.btn-login {
+    width: 100%; padding: 11px;
+    background: linear-gradient(135deg, var(--niebieski) 0%, var(--ziel) 100%);
+    color: #fff; border: none; border-radius: var(--r-sm);
+    font-size: 1rem; font-weight: 700; cursor: pointer;
+    margin-top: 4px; transition: opacity .15s;
+}
+.btn-login:hover { opacity: .9; }
+.btn-login-green {
+    background: linear-gradient(135deg, var(--ziel) 0%, var(--ziel-jasny) 100%);
+}
+.login-info {
+    text-align: center; font-size: .75rem;
+    color: var(--szary); margin-top: 18px; line-height: 1.5;
+}
+
+/* --- LISTA WPISÓW --- */
+.dziennik-lista { display: grid; gap: 10px; }
+.wpis-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 14px; border-radius: var(--r-sm);
+    border: 1px solid #e2e8f0; background: #fafafa;
+    transition: box-shadow .15s;
+}
+.wpis-item:hover { box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+.wpis-thumb-link { flex-shrink: 0; display: block; }
+.wpis-thumb {
+    width: 70px; height: 70px; border-radius: 7px;
+    object-fit: cover; box-shadow: 0 1px 4px rgba(0,0,0,.12);
+    display: block;
+}
+.wpis-tresc { flex: 1; min-width: 0; }
+.wpis-naglowek {
+    display: flex; align-items: center; gap: 7px;
+    flex-wrap: wrap; margin-bottom: 5px;
+}
+.wpis-gatunek { font-weight: 700; font-size: .9rem; color: var(--ziel); }
+.wpis-data { font-size: .74rem; color: var(--szary); margin-left: auto; white-space: nowrap; }
+.btn-usun-wpis {
+    background: none; border: none; color: #94a3b8;
+    cursor: pointer; font-size: .85rem; padding: 2px 5px;
+    border-radius: 4px; transition: all .15s; flex-shrink: 0;
+}
+.btn-usun-wpis:hover { background: #fee2e2; color: var(--czerwony); }
+.wpis-szczegoly {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    font-size: .8rem; color: var(--tekst-mid); margin-bottom: 5px;
+}
+.wpis-tagi { display: flex; flex-wrap: wrap; gap: 5px; }
+.wpis-tag {
+    font-size: .74rem; padding: 2px 8px; border-radius: 10px; font-weight: 500;
+}
+.tag-metoda   { background: #fce7f3; color: #9d174d; }
+.tag-przyneta { background: #fef9c3; color: #713f12; }
+.wpis-notatki {
+    font-size: .78rem; color: var(--szary); margin-top: 5px;
+    font-style: italic; line-height: 1.4; white-space: pre-wrap; word-break: break-word;
+}
+.cr-badge {
+    background: #d1fae5; color: #065f46;
+    font-size: .72rem; font-weight: 700; padding: 2px 7px; border-radius: 8px;
+}
+
+/* --- STAN PUSTY --- */
+.dziennik-pusty {
+    text-align: center; padding: 32px 20px;
+    color: var(--szary); font-size: .9rem;
+}
+.dziennik-pusty div { font-size: 2.5rem; margin-bottom: 10px; }
+
+/* --- STATYSTYKI --- */
+.dziennik-statystyki {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 16px;
+    padding: 12px 16px; background: #f5f3ff;
+    border-radius: 8px; border: 1px solid #e0d7ff;
+    margin-top: 14px; font-size: .82rem;
+}
+.stat-kafelek { text-align: center; min-width: 48px; }
+.stat-liczba  { display: block; font-size: 1.4rem; font-weight: 800; color: #5b21b6; line-height: 1; }
+.stat-nazwa   { font-size: .7rem; color: var(--szary); }
+.stat-gatunki { color: var(--tekst-mid); flex: 1; }
+.stat-rekord  { color: #78350f; font-size: .8rem; }

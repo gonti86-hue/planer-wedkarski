@@ -1,0 +1,982 @@
+{
+  "ochrona_gatunkow": {
+    "Sieja": {
+      "wymiar_cm": 35,
+      "okres_ochronny": [
+        10,
+        11,
+        12
+      ],
+      "zakaz": false,
+      "uwaga": "Tarło paź–gru — C&R lub zmiana celu"
+    },
+    "Sielawa": {
+      "wymiar_cm": 18,
+      "okres_ochronny": [
+        10,
+        11
+      ],
+      "zakaz": false,
+      "uwaga": "Tarło paź–lis"
+    },
+    "Sandacz": {
+      "wymiar_cm": 45,
+      "okres_ochronny": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "zakaz": false,
+      "uwaga": "Ochrona do 31 maja"
+    },
+    "Szczupak": {
+      "wymiar_cm": 45,
+      "okres_ochronny": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "zakaz": false,
+      "uwaga": "Ochrona do 30 kwietnia"
+    },
+    "Sum": {
+      "wymiar_cm": 70,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Miętus": {
+      "wymiar_cm": 25,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Węgorz": {
+      "wymiar_cm": null,
+      "okres_ochronny": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "zakaz": true,
+      "uwaga": "Moratorium UE — zakaz połowu w całej Polsce"
+    },
+    "Okoń": {
+      "wymiar_cm": 15,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Jazgarz": {
+      "wymiar_cm": null,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Jaź": {
+      "wymiar_cm": 25,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Leszcz": {
+      "wymiar_cm": 25,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Krąp": {
+      "wymiar_cm": 15,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Płoć": {
+      "wymiar_cm": 15,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Wzdręga": {
+      "wymiar_cm": 15,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Lin": {
+      "wymiar_cm": 25,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Karaś": {
+      "wymiar_cm": 15,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Karaś srebrzysty": {
+      "wymiar_cm": 15,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Karp": {
+      "wymiar_cm": 30,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Amur biały": {
+      "wymiar_cm": 50,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    }
+  },
+  "jeziora": [
+    {
+      "id": "wulpinskie",
+      "nazwa": "Jezioro Wulpińskie",
+      "lokalizacja": "Tomaszkowo, gm. Stawiguda",
+      "wspolrzedne": {
+        "lat": 53.71,
+        "lon": 20.32
+      },
+      "powierzchnia_ha": 707,
+      "glebokosc_maks_m": 54,
+      "typ": "rynnowe, głębokie, mezotroficzne",
+      "strefy_glebokosci": [
+        {
+          "nazwa": "Płycizny przybrzeżne",
+          "zakres_m": [
+            0,
+            3
+          ],
+          "opis": "Strefy trzcinowisk, linie przybrzeżne"
+        },
+        {
+          "nazwa": "Stoki",
+          "zakres_m": [
+            3,
+            10
+          ],
+          "opis": "Strefowe granice, upad dna"
+        },
+        {
+          "nazwa": "Głębiny rynny",
+          "zakres_m": [
+            10,
+            54
+          ],
+          "opis": "Typowe stanowiska siei, sielawy, węgorza"
+        }
+      ],
+      "gatunki": [
+        {
+          "nazwa": "Sieja",
+          "sezon": [
+            10,
+            11,
+            12,
+            1,
+            2,
+            3
+          ],
+          "preferowana_glebokosc_m": [
+            15,
+            40
+          ],
+          "metody": [
+            "spinning",
+            "głębinowy grunt"
+          ]
+        },
+        {
+          "nazwa": "Sielawa",
+          "sezon": [
+            10,
+            11,
+            12,
+            1,
+            2
+          ],
+          "preferowana_glebokosc_m": [
+            20,
+            54
+          ],
+          "metody": [
+            "głębinowy grunt"
+          ]
+        },
+        {
+          "nazwa": "Sandacz",
+          "sezon": [
+            3,
+            4,
+            5,
+            8,
+            9,
+            10,
+            11
+          ],
+          "preferowana_glebokosc_m": [
+            5,
+            20
+          ],
+          "metody": [
+            "spinning",
+            "jigging"
+          ]
+        },
+        {
+          "nazwa": "Szczupak",
+          "sezon": [
+            3,
+            4,
+            5,
+            9,
+            10,
+            11
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            8
+          ],
+          "metody": [
+            "spinning",
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Sum",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            3,
+            20
+          ],
+          "metody": [
+            "grunt nocny",
+            "spinning"
+          ]
+        },
+        {
+          "nazwa": "Miętus",
+          "sezon": [
+            10,
+            11,
+            12,
+            1,
+            2,
+            3
+          ],
+          "preferowana_glebokosc_m": [
+            10,
+            40
+          ],
+          "metody": [
+            "grunt nocny"
+          ]
+        },
+        {
+          "nazwa": "Węgorz",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            5,
+            20
+          ],
+          "metody": [
+            "grunt nocny"
+          ]
+        },
+        {
+          "nazwa": "Okoń",
+          "sezon": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "preferowana_glebokosc_m": [
+            2,
+            10
+          ],
+          "metody": [
+            "spinning",
+            "spławik",
+            "jigging"
+          ]
+        },
+        {
+          "nazwa": "Jazgarz",
+          "sezon": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "preferowana_glebokosc_m": [
+            2,
+            8
+          ],
+          "metody": [
+            "spławik",
+            "jigging"
+          ]
+        },
+        {
+          "nazwa": "Jaź",
+          "sezon": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            5
+          ],
+          "metody": [
+            "spinning",
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Leszcz",
+          "sezon": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            4,
+            12
+          ],
+          "metody": [
+            "grunt",
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Krąp",
+          "sezon": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            3,
+            10
+          ],
+          "metody": [
+            "grunt",
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Płoć",
+          "sezon": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            8
+          ],
+          "metody": [
+            "spławik",
+            "grunt"
+          ]
+        },
+        {
+          "nazwa": "Wzdręga",
+          "sezon": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            3
+          ],
+          "metody": [
+            "spławik",
+            "spinning"
+          ]
+        },
+        {
+          "nazwa": "Lin",
+          "sezon": [
+            5,
+            6,
+            7,
+            8
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            4
+          ],
+          "metody": [
+            "spławik",
+            "grunt"
+          ]
+        },
+        {
+          "nazwa": "Karaś",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            3
+          ],
+          "metody": [
+            "spławik",
+            "grunt"
+          ]
+        }
+      ],
+      "lowiska": [
+        {
+          "id": "W1",
+          "nazwa": "Wyspa Północna — krawędź",
+          "opis": "Krawędź podwodna przy wyspie, zejście z 2 m na 8 m",
+          "gps": {
+            "lat": 53.7285,
+            "lon": 20.3125,
+            "placeholder": true
+          },
+          "glebokosc_m": [
+            2,
+            8
+          ],
+          "gatunki": [
+            "Szczupak",
+            "Okoń",
+            "Sandacz",
+            "Jaź"
+          ]
+        },
+        {
+          "id": "W2",
+          "nazwa": "Krawędź rynny głównej",
+          "opis": "Nagłe zejście dna wzdłuż osi rynny",
+          "gps": {
+            "lat": 53.7155,
+            "lon": 20.3195,
+            "placeholder": true
+          },
+          "glebokosc_m": [
+            10,
+            30
+          ],
+          "gatunki": [
+            "Sieja",
+            "Sandacz",
+            "Węgorz",
+            "Miętus",
+            "Sum"
+          ]
+        },
+        {
+          "id": "W3",
+          "nazwa": "Zatoka południowo-wschodnia",
+          "opis": "Płytka zatoka z roślinnością, dobre miejsce wiosną",
+          "gps": {
+            "lat": 53.701426,
+            "lon": 20.330067,
+            "placeholder": false
+          },
+          "glebokosc_m": [
+            1,
+            4
+          ],
+          "gatunki": [
+            "Szczupak",
+            "Lin",
+            "Leszcz",
+            "Płoć",
+            "Wzdręga",
+            "Karaś"
+          ]
+        },
+        {
+          "id": "W4",
+          "nazwa": "Ujście dopływu",
+          "opis": "Strefa przy ujściu dopływu — tleniona woda, zbierają się ryby",
+          "gps": {
+            "lat": 53.7085,
+            "lon": 20.3085,
+            "placeholder": true
+          },
+          "glebokosc_m": [
+            1,
+            5
+          ],
+          "gatunki": [
+            "Okoń",
+            "Szczupak",
+            "Leszcz",
+            "Płoć",
+            "Jaź"
+          ]
+        },
+        {
+          "id": "W5",
+          "nazwa": "Trzcinowisko zachodnie",
+          "opis": "Rozległe trzcinowisko, latem liny, szczupaki i karasie",
+          "gps": {
+            "lat": 53.7215,
+            "lon": 20.3045,
+            "placeholder": true
+          },
+          "glebokosc_m": [
+            1,
+            3
+          ],
+          "gatunki": [
+            "Lin",
+            "Szczupak",
+            "Karaś",
+            "Wzdręga",
+            "Płoć"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sarag",
+      "nazwa": "Jezioro Sarąg",
+      "lokalizacja": "gm. Stawiguda",
+      "wspolrzedne": {
+        "lat": 53.69,
+        "lon": 20.4
+      },
+      "powierzchnia_ha": 120,
+      "glebokosc_maks_m": 16,
+      "typ": "eutroficzne, płytsze",
+      "strefy_glebokosci": [
+        {
+          "nazwa": "Rozległe płycizny",
+          "zakres_m": [
+            0,
+            2
+          ],
+          "opis": "Dominujące płycizny z bogatą roślinnością"
+        },
+        {
+          "nazwa": "Partie głębsze",
+          "zakres_m": [
+            2,
+            16
+          ],
+          "opis": "Dołki i zagłębienia, zimowiska"
+        }
+      ],
+      "gatunki": [
+        {
+          "nazwa": "Szczupak",
+          "sezon": [
+            3,
+            4,
+            5,
+            9,
+            10,
+            11
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            5
+          ],
+          "metody": [
+            "spinning",
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Sum",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            2,
+            8
+          ],
+          "metody": [
+            "grunt nocny",
+            "spinning"
+          ]
+        },
+        {
+          "nazwa": "Okoń",
+          "sezon": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            8
+          ],
+          "metody": [
+            "spinning",
+            "spławik",
+            "jigging"
+          ]
+        },
+        {
+          "nazwa": "Jazgarz",
+          "sezon": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            6
+          ],
+          "metody": [
+            "spławik",
+            "jigging"
+          ]
+        },
+        {
+          "nazwa": "Jaź",
+          "sezon": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            4
+          ],
+          "metody": [
+            "spinning",
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Leszcz",
+          "sezon": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            3,
+            12
+          ],
+          "metody": [
+            "grunt",
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Krąp",
+          "sezon": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            2,
+            8
+          ],
+          "metody": [
+            "grunt",
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Płoć",
+          "sezon": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            6
+          ],
+          "metody": [
+            "spławik",
+            "grunt"
+          ]
+        },
+        {
+          "nazwa": "Wzdręga",
+          "sezon": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            3
+          ],
+          "metody": [
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Lin",
+          "sezon": [
+            5,
+            6,
+            7,
+            8
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            3
+          ],
+          "metody": [
+            "spławik",
+            "grunt"
+          ]
+        },
+        {
+          "nazwa": "Karaś",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            3
+          ],
+          "metody": [
+            "spławik",
+            "grunt"
+          ]
+        },
+        {
+          "nazwa": "Karaś srebrzysty",
+          "sezon": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            4
+          ],
+          "metody": [
+            "spławik",
+            "grunt"
+          ]
+        },
+        {
+          "nazwa": "Karp",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            5
+          ],
+          "metody": [
+            "grunt",
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Amur biały",
+          "sezon": [
+            5,
+            6,
+            7,
+            8
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            4
+          ],
+          "metody": [
+            "grunt",
+            "spławik"
+          ]
+        }
+      ],
+      "lowiska": [
+        {
+          "id": "S1",
+          "nazwa": "Trzcinowisko północne",
+          "opis": "Gęste trzciny — idealne dla szczupaka wiosną i jesienią",
+          "gps": {
+            "lat": 53.6975,
+            "lon": 20.4045,
+            "placeholder": true
+          },
+          "glebokosc_m": [
+            1,
+            3
+          ],
+          "gatunki": [
+            "Szczupak",
+            "Lin",
+            "Karaś",
+            "Karaś srebrzysty"
+          ]
+        },
+        {
+          "id": "S2",
+          "nazwa": "Krawędź roślinności wschodniej",
+          "opis": "Granica między zaroślami a otwartą wodą",
+          "gps": {
+            "lat": 53.6915,
+            "lon": 20.4145,
+            "placeholder": true
+          },
+          "glebokosc_m": [
+            1,
+            5
+          ],
+          "gatunki": [
+            "Okoń",
+            "Szczupak",
+            "Płoć",
+            "Jazgarz",
+            "Jaź"
+          ]
+        },
+        {
+          "id": "S3",
+          "nazwa": "Dołek centralny",
+          "opis": "Głębsze zagłębienie pośrodku jeziora — zimowisko",
+          "gps": {
+            "lat": 53.69,
+            "lon": 20.4055,
+            "placeholder": true
+          },
+          "glebokosc_m": [
+            8,
+            16
+          ],
+          "gatunki": [
+            "Leszcz",
+            "Krąp",
+            "Okoń",
+            "Karp"
+          ]
+        },
+        {
+          "id": "S4",
+          "nazwa": "Zatoka zachodnia z grążelami",
+          "opis": "Lilie wodne i grążele — latem liny, karasie i amury",
+          "gps": {
+            "lat": 53.692,
+            "lon": 20.396,
+            "placeholder": true
+          },
+          "glebokosc_m": [
+            1,
+            2
+          ],
+          "gatunki": [
+            "Lin",
+            "Karaś",
+            "Karaś srebrzysty",
+            "Wzdręga",
+            "Amur biały"
+          ]
+        }
+      ]
+    }
+  ]
+}
