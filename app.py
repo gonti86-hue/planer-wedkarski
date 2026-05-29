@@ -8,13 +8,12 @@ Uruchomienie:
 
 import functools
 import os
-import shutil
 import uuid
 import copy
 from datetime import datetime
 
 from config import (
-    DATA_DIR, APP_DIR, IS_PRODUCTION,
+    DATA_DIR, IS_PRODUCTION,
     zaladuj_env, pobierz_secret_key,
 )
 
@@ -83,12 +82,8 @@ def _bezpieczna_nazwa(s: str) -> str:
 # ── Inicjalizacja danych ──────────────────────────────────────────────────────
 
 def _init_data():
-    """Tworzy katalogi i kopiuje współdzielony jeziora.json przy pierwszym starcie."""
+    """Tworzy katalog na zdjęcia. jeziora.json czytany jest wprost z repo (read-only)."""
     os.makedirs(ZDJECIA_FOLDER, exist_ok=True)
-    dest = os.path.join(DATA_DIR, "jeziora.json")
-    src  = os.path.join(APP_DIR,  "jeziora.json")
-    if not os.path.exists(dest) and os.path.exists(src):
-        shutil.copy2(src, dest)
 
 
 _init_data()

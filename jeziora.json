@@ -20,7 +20,7 @@
       "uwaga": "Tarło paź–lis"
     },
     "Sandacz": {
-      "wymiar_cm": 45,
+      "wymiar_cm": 50,
       "okres_ochronny": [
         1,
         2,
@@ -29,10 +29,10 @@
         5
       ],
       "zakaz": false,
-      "uwaga": "Ochrona do 31 maja"
+      "uwaga": "Wymiar 50 cm; ochrona do 31 maja"
     },
     "Szczupak": {
-      "wymiar_cm": 45,
+      "wymiar_cm": 50,
       "okres_ochronny": [
         1,
         2,
@@ -40,13 +40,24 @@
         4
       ],
       "zakaz": false,
-      "uwaga": "Ochrona do 30 kwietnia"
+      "uwaga": "Wymiar 50 cm; ochrona do 30 kwietnia"
     },
     "Sum": {
       "wymiar_cm": 70,
       "okres_ochronny": [],
       "zakaz": false,
       "uwaga": null
+    },
+    "Boleń": {
+      "wymiar_cm": 40,
+      "okres_ochronny": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "zakaz": false,
+      "uwaga": "Wymiar 40 cm; ochrona do 30 kwietnia"
     },
     "Miętus": {
       "wymiar_cm": 25,
@@ -80,6 +91,12 @@
       "uwaga": null
     },
     "Jazgarz": {
+      "wymiar_cm": null,
+      "okres_ochronny": [],
+      "zakaz": false,
+      "uwaga": null
+    },
+    "Ukleja": {
       "wymiar_cm": null,
       "okres_ochronny": [],
       "zakaz": false,
@@ -487,6 +504,91 @@
             "spławik",
             "grunt"
           ]
+        },
+        {
+          "nazwa": "Karaś srebrzysty",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            4
+          ],
+          "metody": [
+            "spławik",
+            "grunt"
+          ]
+        },
+        {
+          "nazwa": "Karp",
+          "sezon": [
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            2,
+            8
+          ],
+          "metody": [
+            "grunt",
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Amur biały",
+          "sezon": [
+            6,
+            7,
+            8
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            4
+          ],
+          "metody": [
+            "grunt",
+            "spławik"
+          ]
+        },
+        {
+          "nazwa": "Boleń",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            6
+          ],
+          "metody": [
+            "spinning"
+          ]
+        },
+        {
+          "nazwa": "Ukleja",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            0,
+            2
+          ],
+          "metody": [
+            "spławik"
+          ]
         }
       ],
       "lowiska": [
@@ -507,7 +609,8 @@
             "Szczupak",
             "Okoń",
             "Sandacz",
-            "Jaź"
+            "Jaź",
+            "Boleń"
           ]
         },
         {
@@ -550,7 +653,9 @@
             "Leszcz",
             "Płoć",
             "Wzdręga",
-            "Karaś"
+            "Karaś",
+            "Karaś srebrzysty",
+            "Karp"
           ]
         },
         {
@@ -571,7 +676,9 @@
             "Szczupak",
             "Leszcz",
             "Płoć",
-            "Jaź"
+            "Jaź",
+            "Ukleja",
+            "Boleń"
           ]
         },
         {
@@ -592,7 +699,9 @@
             "Szczupak",
             "Karaś",
             "Wzdręga",
-            "Płoć"
+            "Płoć",
+            "Karaś srebrzysty",
+            "Amur biały"
           ]
         }
       ]
@@ -891,6 +1000,58 @@
             "grunt",
             "spławik"
           ]
+        },
+        {
+          "nazwa": "Sandacz",
+          "sezon": [
+            4,
+            5,
+            8,
+            9,
+            10
+          ],
+          "preferowana_glebokosc_m": [
+            3,
+            12
+          ],
+          "metody": [
+            "spinning",
+            "jigging"
+          ]
+        },
+        {
+          "nazwa": "Węgorz",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            2,
+            10
+          ],
+          "metody": [
+            "grunt nocny"
+          ]
+        },
+        {
+          "nazwa": "Ukleja",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            0,
+            2
+          ],
+          "metody": [
+            "spławik"
+          ]
         }
       ],
       "lowiska": [
@@ -932,7 +1093,9 @@
             "Szczupak",
             "Płoć",
             "Jazgarz",
-            "Jaź"
+            "Jaź",
+            "Sandacz",
+            "Ukleja"
           ]
         },
         {
@@ -952,7 +1115,9 @@
             "Leszcz",
             "Krąp",
             "Okoń",
-            "Karp"
+            "Karp",
+            "Sandacz",
+            "Węgorz"
           ]
         },
         {

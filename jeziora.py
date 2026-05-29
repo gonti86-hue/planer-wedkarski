@@ -9,11 +9,11 @@ import xml.etree.ElementTree as ET
 from typing import Optional
 
 
-from config import DATA_DIR, APP_DIR
+from config import APP_DIR
 
-# Jeziora.json — zapisywalny egzemplarz w DATA_DIR (skopiowany przy starcie)
-SCIEZKA_JSON  = os.path.join(DATA_DIR, "jeziora.json")
-_SCIEZKA_ORG  = os.path.join(APP_DIR,  "jeziora.json")  # oryginał z repozytorium
+# jeziora.json jest TYLKO-DO-ODCZYTU (pozycje GPS użytkownika trzymane są w SQLite),
+# więc czytamy wprost wersję z repozytorium — każdy deploy aktualizuje dane gatunków.
+SCIEZKA_JSON = os.path.join(APP_DIR, "jeziora.json")
 
 # === Cache JSON — nie czytamy pliku przy każdym zapytaniu (fix: backend dev) ===
 _cache_dane: dict | None = None
