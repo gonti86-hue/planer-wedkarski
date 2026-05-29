@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Planer Wędkarski">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2d6a4f"/>
+      <stop offset="1" stop-color="#1d6fa5"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="104" fill="url(#bg)"/>
+  <!-- fale -->
+  <g fill="none" stroke="#ffffff" stroke-opacity="0.32" stroke-width="11" stroke-linecap="round">
+    <path d="M104 356 q38 -26 76 0 t76 0 t76 0 t76 0"/>
+    <path d="M104 398 q38 -26 76 0 t76 0 t76 0 t76 0"/>
+  </g>
+  <!-- ryba -->
+  <g fill="#ffffff">
+    <path d="M168 232 C214 168 312 168 358 232 C312 296 214 296 168 232 Z"/>
+    <path d="M168 232 L120 192 L132 232 L120 272 Z"/>
+  </g>
+  <circle cx="322" cy="216" r="13" fill="#1d6fa5"/>
+</svg>

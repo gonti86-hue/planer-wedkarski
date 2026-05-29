@@ -2,11 +2,23 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Zaloguj się do Planera Wędkarskiego — oceny warunków wędkarskich dla jezior Wulpińskie i Sarąg.">
+    <meta name="theme-color" id="meta-theme-color" content="#2d6a4f">
+    <meta name="color-scheme" content="light dark">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/static/icon.svg">
     <title>Logowanie — Planer Wędkarski</title>
+    <script>
+    (function(){try{var t=localStorage.getItem('wedkar_theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+    </script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="login-body">
+
+<button type="button" id="login-theme-toggle" class="login-theme-toggle"
+        aria-label="Przełącz motyw" aria-pressed="false" onclick="przelaczMotyw()">🌙</button>
 
 <div class="login-wrapper">
     <div class="login-logo">
@@ -16,22 +28,26 @@
     </div>
 
     <!-- ZAKŁADKI -->
-    <div class="login-tabs">
-        <button class="login-tab {% if blad_r %}{% else %}active{% endif %}"
+    <div class="login-tabs" role="tablist" aria-label="Logowanie lub rejestracja">
+        <button class="login-tab {% if blad_r %}{% else %}active{% endif %}" type="button"
+                role="tab" aria-controls="panel-login"
+                aria-selected="{% if blad_r %}false{% else %}true{% endif %}"
                 id="tab-login" onclick="pokazTab('login')">
             Zaloguj się
         </button>
-        <button class="login-tab {% if blad_r %}active{% endif %}"
+        <button class="login-tab {% if blad_r %}active{% endif %}" type="button"
+                role="tab" aria-controls="panel-register"
+                aria-selected="{% if blad_r %}true{% else %}false{% endif %}"
                 id="tab-register" onclick="pokazTab('register')">
             Zarejestruj się
         </button>
     </div>
 
     <!-- PANEL LOGOWANIA -->
-    <div class="login-panel" id="panel-login"
+    <div class="login-panel" id="panel-login" role="tabpanel" aria-labelledby="tab-login"
          style="display:{% if blad_r %}none{% else %}block{% endif %}">
         {% if blad_l %}
-        <div class="login-blad">⚠ {{ blad_l }}</div>
+        <div class="login-blad" role="alert">⚠ {{ blad_l }}</div>
         {% endif %}
         <form method="POST" action="/login">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -87,10 +103,47 @@
 
 <script>
 function pokazTab(ktory) {
-    document.getElementById('panel-login').style.display    = ktory === 'login'    ? 'block' : 'none';
-    document.getElementById('panel-register').style.display = ktory === 'register' ? 'block' : 'none';
-    document.getElementById('tab-login').classList.toggle('active',    ktory === 'login');
-    document.getElementById('tab-register').classList.toggle('active', ktory === 'register');
+    var jestLogin = ktory === 'login';
+    document.getElementById('panel-login').style.display    = jestLogin ? 'block' : 'none';
+    document.getElementById('panel-register').style.display = jestLogin ? 'none' : 'block';
+    document.getElementById('tab-login').classList.toggle('active',    jestLogin);
+    document.getElementById('tab-register').classList.toggle('active', !jestLogin);
+    document.getElementById('tab-login').setAttribute('aria-selected',    jestLogin ? 'true' : 'false');
+    document.getElementById('tab-register').setAttribute('aria-selected', jestLogin ? 'false' : 'true');
+}
+
+function _ustawMetaThemeColor(t) {
+    var m = document.getElementById('meta-theme-color');
+    if (m) m.setAttribute('content', t === 'dark' ? '#0f172a' : '#2d6a4f');
+}
+function _aktualizujPrzyciskMotywu(t) {
+    var b = document.getElementById('login-theme-toggle');
+    if (!b) return;
+    var ciemny = t === 'dark';
+    b.textContent = ciemny ? '☀️' : '🌙';
+    b.setAttribute('aria-pressed', ciemny ? 'true' : 'false');
+    var label = ciemny ? 'Włącz tryb jasny' : 'Włącz tryb ciemny';
+    b.setAttribute('aria-label', label);
+    b.title = label;
+}
+function przelaczMotyw() {
+    var obecny = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    var nowy = obecny === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nowy);
+    try { localStorage.setItem('wedkar_theme', nowy); } catch (e) {}
+    _ustawMetaThemeColor(nowy);
+    _aktualizujPrzyciskMotywu(nowy);
+}
+(function initMotyw() {
+    var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    _ustawMetaThemeColor(t);
+    _aktualizujPrzyciskMotywu(t);
+})();
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js').catch(function () {});
+    });
 }
 </script>
 

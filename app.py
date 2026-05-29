@@ -387,6 +387,25 @@ def health():
     return jsonify({"status": "ok"}), 200
 
 
+# ── PWA: service worker + manifest (publiczne, bez logowania) ─────────────────
+
+@app.route("/sw.js")
+def service_worker():
+    """Service worker musi być serwowany z roota, by mieć zasięg całej domeny."""
+    resp = send_from_directory(app.static_folder, "sw.js", mimetype="application/javascript")
+    resp.headers["Service-Worker-Allowed"] = "/"
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
+
+
+@app.route("/manifest.webmanifest")
+def manifest():
+    return send_from_directory(
+        app.static_folder, "manifest.webmanifest",
+        mimetype="application/manifest+json",
+    )
+
+
 # ── Start (lokalny development) ───────────────────────────────────────────────
 
 if __name__ == "__main__":

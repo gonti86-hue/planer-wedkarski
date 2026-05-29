@@ -344,7 +344,11 @@ footer a { color: var(--ziel-jasny); text-decoration: none; }
 .pref-radio.active {
     background: var(--ziel-pale); border-color: var(--ziel-mid); color: var(--ziel); font-weight: 700;
 }
-.pref-radio input { display: none; }
+/* Wizualnie ukryte, ale dostępne dla klawiatury (a11y) */
+.pref-radio input {
+    position: absolute; opacity: 0; width: 1px; height: 1px;
+    margin: 0; pointer-events: none;
+}
 
 .pref-select {
     width: 100%; padding: 7px 10px; border-radius: 8px;
@@ -911,3 +915,159 @@ footer a { color: var(--ziel-jasny); text-decoration: none; }
 .stat-nazwa   { font-size: .7rem; color: var(--szary); }
 .stat-gatunki { color: var(--tekst-mid); flex: 1; }
 .stat-rekord  { color: #78350f; font-size: .8rem; }
+
+/* =====================================================================
+   ULEPSZENIA — dostępność (a11y), tryb ciemny, PWA, mikrointerakcje
+   ===================================================================== */
+
+/* ---- Animacje bazowe ---- */
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ---- Skip link (przeskok do treści) ---- */
+.skip-link {
+    position: absolute; left: 8px; top: -52px; z-index: 2000;
+    background: var(--ziel); color: #fff; padding: 10px 16px;
+    border-radius: 0 0 8px 8px; font-weight: 700; font-size: .875rem;
+    text-decoration: none; transition: top .15s ease;
+}
+.skip-link:focus { top: 0; }
+
+/* ---- Widoczny focus tylko dla nawigacji klawiaturą ---- */
+:focus-visible { outline: 3px solid var(--ziel-mid); outline-offset: 2px; border-radius: 4px; }
+:focus:not(:focus-visible) { outline: none; }
+.pref-radio:has(input:focus-visible),
+.foto-label:has(input:focus-visible) { outline: 3px solid var(--ziel-mid); outline-offset: 2px; }
+main:focus { outline: none; }
+
+/* ---- Przełącznik motywu ---- */
+.btn-theme {
+    background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.6);
+    color: #fff; width: 40px; height: 40px; border-radius: 10px;
+    cursor: pointer; font-size: 1.1rem; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background .2s, transform .1s;
+}
+.btn-theme:hover { background: rgba(255,255,255,.35); }
+
+/* ---- Mikrointerakcje ---- */
+.btn-primary, .btn-secondary, .btn-primary-green, .btn-ghost,
+.btn-login, .btn-szczegoly, .foto-label, .btn-theme, .btn-logout {
+    transition: background .2s, opacity .15s, transform .1s, box-shadow .2s, color .15s, border-color .15s;
+}
+.btn-primary:active, .btn-secondary:active, .btn-primary-green:active,
+.btn-ghost:active, .btn-login:active, .btn-szczegoly:active,
+.foto-label:active, .btn-theme:active { transform: translateY(1px) scale(.985); }
+
+.jezioro-karta { transition: box-shadow .25s ease, transform .25s ease, border-color .3s ease; }
+.jezioro-karta:hover { transform: translateY(-3px); box-shadow: var(--cien-mocny); }
+
+#tresc-glowna:not(.hidden) { animation: fadeIn .4s ease both; }
+.wpis-item { animation: slideUp .3s ease both; }
+
+/* ---- Poszanowanie preferencji "mniej ruchu" ---- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* =====================================================================
+   TRYB CIEMNY
+   ===================================================================== */
+[data-theme="dark"] {
+    --ziel: #5bbf93;
+    --ziel-jasny: #52b788;
+    --ziel-mid: #40916c;
+    --ziel-pale: #14302a;
+    --niebieski: #6fb4e0;
+    --niebieski-pale: #15293a;
+    --czerwony: #f87171;
+    --szary: #94a3b8;
+    --szary-pale: #1e293b;
+    --biel: #1b2433;               /* powierzchnia kart/sekcji */
+    --tekst: #e5e9f0;
+    --tekst-mid: #b6c2d4;
+    --cien: 0 2px 12px rgba(0,0,0,.45);
+    --cien-mocny: 0 8px 28px rgba(0,0,0,.6);
+}
+[data-theme="dark"] body { background: linear-gradient(135deg, #0b1220 0%, #0e1a26 100%); }
+[data-theme="dark"] header { color: #fff; }
+
+/* Powierzchnie, paski i obramowania */
+[data-theme="dark"] .wynik-pasek,
+[data-theme="dark"] .rozbicie-bar-wrap,
+[data-theme="dark"] .szansa-pasek-wrap { background: #334155; }
+[data-theme="dark"] .szczegoly { border-top-color: #334155; }
+[data-theme="dark"] .pref-panel,
+[data-theme="dark"] .dziennik-panel { border-top-color: #334155; }
+[data-theme="dark"] .okno-item { border-color: #334155; }
+[data-theme="dark"] .okno-item.aktywne { background: #14302a; }
+[data-theme="dark"] .lowisko-item,
+[data-theme="dark"] .wpis-item { background: #131c2a; border-color: #334155; }
+[data-theme="dark"] .gpx-upload { background: #131c2a; border-color: #3b4a5e; }
+[data-theme="dark"] .ryba-karta { background: #131c2a; border-color: #334155; }
+[data-theme="dark"] .pref-radio { border-color: #334155; }
+[data-theme="dark"] .pref-radio:has(input:checked),
+[data-theme="dark"] .pref-radio.active { background: #14302a; border-color: var(--ziel-mid); color: var(--ziel); }
+[data-theme="dark"] .pref-select,
+[data-theme="dark"] .formularz-pole input,
+[data-theme="dark"] .formularz-pole select,
+[data-theme="dark"] .formularz-pole textarea { background: #0f1a28; border-color: #334155; color: var(--tekst); }
+[data-theme="dark"] .btn-ghost,
+[data-theme="dark"] .btn-clear-gatunki { border-color: #334155; }
+[data-theme="dark"] .lowisko-id { background: #334155; color: #cbd5e1; }
+[data-theme="dark"] .pref-akcje { border-top-color: #334155; }
+[data-theme="dark"] .spot-leg-item { border-left-color: #334155; }
+
+/* Sekcje z fioletowym akcentem (dziennik / AI) */
+[data-theme="dark"] .dziennik-naglowek,
+[data-theme="dark"] .ai-wynik-naglowek,
+[data-theme="dark"] .dziennik-formularz h3,
+[data-theme="dark"] .stat-liczba { color: #c4b5fd; }
+[data-theme="dark"] .dziennik-formularz,
+[data-theme="dark"] .ai-wynik-karta,
+[data-theme="dark"] .dziennik-statystyki { background: #1a1730; border-color: #4c3f7a; }
+[data-theme="dark"] .dziennik-formularz h3,
+[data-theme="dark"] .ai-opis,
+[data-theme="dark"] .formularz-akcje { border-color: #4c3f7a; }
+
+/* Notatka na mapie */
+[data-theme="dark"] .mapa-plh-box { background: #2a2410; border-color: #5c4d12; }
+[data-theme="dark"] .mapa-plh-title { color: #d9b96b; }
+
+/* Komunikaty błędów / ostrzeżeń */
+[data-theme="dark"] .baner-blad,
+[data-theme="dark"] .login-blad { background: #2a1416; border-color: #7f1d1d; color: #fca5a5; }
+[data-theme="dark"] .ostrzezenie-item { background: #2a1416; color: #fecaca; }
+
+/* Mapy — delikatne wygaszenie kafli i czytelne nakładki w nocy */
+[data-theme="dark"] .leaflet-tile { filter: brightness(.82) saturate(.9); }
+[data-theme="dark"] .leaflet-depth-legend,
+[data-theme="dark"] .mapa-osm-loader { background: rgba(20,28,40,.92); color: #cbd5e1; }
+
+/* Strona logowania */
+[data-theme="dark"] .login-body { background: linear-gradient(135deg, #0b1220 0%, #0e1a26 100%); }
+[data-theme="dark"] .login-wrapper { background: #1b2433; }
+[data-theme="dark"] .login-tabs { border-bottom-color: #334155; }
+[data-theme="dark"] .login-tab:hover:not(.active) { color: var(--tekst); }
+[data-theme="dark"] .login-pole input { background: #0f1a28; border-color: #334155; color: var(--tekst); }
+[data-theme="dark"] .login-pole label small { color: #64748b; }
+
+/* Pływający przełącznik motywu na ekranie logowania */
+.login-theme-toggle {
+    position: fixed; top: 14px; right: 14px; z-index: 50;
+    width: 40px; height: 40px; border-radius: 10px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; line-height: 1;
+    background: rgba(45,106,79,.12); border: 1.5px solid rgba(45,106,79,.35);
+    color: var(--ziel); transition: background .2s, transform .1s;
+}
+.login-theme-toggle:hover { background: rgba(45,106,79,.22); }
+.login-theme-toggle:active { transform: scale(.92); }
+[data-theme="dark"] .login-theme-toggle {
+    background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.22); color: #e5e9f0;
+}

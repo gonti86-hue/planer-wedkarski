@@ -1,0 +1,28 @@
+{
+  "name": "Planer Wędkarski — Wulpińskie & Sarąg",
+  "short_name": "Planer Wędkarski",
+  "description": "Ocena warunków wędkarskich 0–100 z pogody, ciśnienia i okien solunarnych dla jezior Wulpińskie i Sarąg. Rekomendacje gatunku, łowiska i metody oraz prywatny dziennik połowów.",
+  "lang": "pl",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#e8f5e9",
+  "theme_color": "#2d6a4f",
+  "categories": ["sports", "weather", "utilities"],
+  "icons": [
+    {
+      "src": "/static/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

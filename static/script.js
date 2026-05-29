@@ -114,8 +114,45 @@ async function pobierzZdjecieRyby(gatunek) {
     }
 }
 
+/* ===== TRYB CIEMNY (motyw) ===== */
+function _ustawMetaThemeColor(theme) {
+    var m = document.getElementById('meta-theme-color');
+    if (m) m.setAttribute('content', theme === 'dark' ? '#0f172a' : '#2d6a4f');
+}
+function _aktualizujPrzyciskMotywu(theme) {
+    var b = document.getElementById('btn-theme');
+    if (!b) return;
+    var dark = theme === 'dark';
+    b.textContent = dark ? '☀' : '🌙';
+    b.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    var label = dark ? 'Włącz tryb jasny' : 'Włącz tryb ciemny';
+    b.setAttribute('aria-label', label);
+    b.title = label;
+}
+function przelaczMotyw() {
+    var obecny = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    var nowy   = obecny === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nowy);
+    try { localStorage.setItem('wedkar_theme', nowy); } catch (e) {}
+    _ustawMetaThemeColor(nowy);
+    _aktualizujPrzyciskMotywu(nowy);
+}
+function initMotyw() {
+    var theme = document.documentElement.getAttribute('data-theme') || 'light';
+    _ustawMetaThemeColor(theme);
+    _aktualizujPrzyciskMotywu(theme);
+}
+
+/* ===== SERVICE WORKER (PWA / offline) ===== */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js').catch(function () {});
+    });
+}
+
 /* ===== INICJALIZACJA ===== */
 document.addEventListener("DOMContentLoaded", () => {
+    initMotyw();
     wczytajUIPreferencje();
     odswiezDane();
     _initCheckboxGatunkow();
@@ -223,8 +260,10 @@ function resetujPreferencje() {
 function togglePreferencje() {
     var panel = document.getElementById("pref-panel");
     var strzalka = document.getElementById("pref-strzalka");
+    var naglowek = document.querySelector(".pref-naglowek");
     var ukryty = panel.classList.toggle("hidden");
     strzalka.classList.toggle("open", !ukryty);
+    if (naglowek) naglowek.setAttribute("aria-expanded", ukryty ? "false" : "true");
 }
 
 /* ===== ODŚWIEŻANIE DANYCH ===== */
@@ -1060,8 +1099,10 @@ var dziennikZdjecieNazwa = null;   // uuid nazwy pliku na serwerze
 function toggleDziennik() {
     var panel    = document.getElementById('dziennik-panel');
     var strzalka = document.getElementById('dziennik-strzalka');
+    var naglowek = document.querySelector('.dziennik-naglowek');
     var ukryty   = panel.classList.toggle('hidden');
     strzalka.classList.toggle('open', !ukryty);
+    if (naglowek) naglowek.setAttribute('aria-expanded', ukryty ? 'false' : 'true');
     if (!ukryty) zaladujDziennik();
 }
 

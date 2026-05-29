@@ -2,46 +2,78 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="description" content="Planer wędkarski dla jezior Wulpińskie i Sarąg (Warmia-Mazury): ocena warunków 0–100 z pogody, ciśnienia i okien solunarnych, rekomendacje gatunku, łowiska i metody, prywatny dziennik połowów.">
+    <meta name="theme-color" id="meta-theme-color" content="#2d6a4f">
+    <meta name="color-scheme" content="light dark">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/static/icon.svg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Planer Wędkarski">
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Planer Wędkarski — Wulpińskie & Sarąg">
+    <meta property="og:description" content="Ocena warunków wędkarskich 0–100 z pogody i okien solunarnych. Rekomendacje gatunku, łowiska i metody. Dziennik połowów.">
+    <meta property="og:image" content="/static/icon.svg">
+    <meta property="og:locale" content="pl_PL">
+    <meta name="twitter:card" content="summary">
+
     <title>Planer Wędkarski — Wulpińskie & Sarąg</title>
+
+    <!-- Ustaw motyw przed renderem, by uniknąć migotania (FOUC) -->
+    <script>
+    (function(){try{var t=localStorage.getItem('wedkar_theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+    </script>
+
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
 </head>
 <body>
-    <header>
+    <a href="#main-content" class="skip-link">Przejdź do treści</a>
+    <header role="banner">
         <div class="header-content">
             <div class="header-title">
-                <span class="fish-icon">🎣</span>
+                <span class="fish-icon" aria-hidden="true">🎣</span>
                 <div>
                     <h1>Planer Wędkarski</h1>
                     <p class="subtitle">Jezioro Wulpińskie &amp; Jezioro Sarąg · woj. warmińsko-mazurskie</p>
                 </div>
             </div>
             <div class="header-actions">
-                <span id="czas-odswiezenia" class="timestamp">Ładowanie...</span>
-                <button id="btn-odswiez" class="btn-primary" onclick="odswiezDane()">
-                    ↻ Odśwież
+                <span id="czas-odswiezenia" class="timestamp" aria-live="polite">Ładowanie...</span>
+                <button id="btn-theme" class="btn-theme" type="button"
+                        aria-label="Przełącz motyw" aria-pressed="false"
+                        onclick="przelaczMotyw()">🌙</button>
+                <button id="btn-odswiez" class="btn-primary" type="button"
+                        aria-label="Odśwież dane" onclick="odswiezDane()">
+                    <span aria-hidden="true">↻</span> Odśwież
                 </button>
                 <div class="user-badge">
-                    <span class="user-nick">👤 {{ username }}</span>
+                    <span class="user-nick"><span aria-hidden="true">👤</span> {{ username }}</span>
                     <a href="/logout" class="btn-logout" title="Wyloguj się">Wyloguj</a>
                 </div>
             </div>
         </div>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
         <!-- BANER BŁĘDU -->
-        <div id="baner-blad" class="baner-blad hidden">
+        <div id="baner-blad" class="baner-blad hidden" role="alert" aria-live="assertive">
             <strong>Błąd:</strong> <span id="blad-tresc"></span>
         </div>
 
         <!-- LOADER -->
-        <div id="loader" class="loader-container">
-            <div class="loader-spinner"></div>
+        <div id="loader" class="loader-container" role="status" aria-live="polite">
+            <div class="loader-spinner" aria-hidden="true"></div>
             <p>Pobieranie danych pogodowych...</p>
         </div>
 
@@ -55,10 +87,12 @@
 
             <!-- PREFERENCJE WĘDKARZA -->
             <section class="sekcja-preferencje">
-                <div class="pref-naglowek" onclick="togglePreferencje()">
-                    <span>🎯 Twoje preferencje</span>
+                <div class="pref-naglowek" role="button" tabindex="0" aria-expanded="false"
+                     aria-controls="pref-panel" onclick="togglePreferencje()"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+                    <span><span aria-hidden="true">🎯</span> Twoje preferencje</span>
                     <span id="pref-podsumowanie" class="pref-podsum"></span>
-                    <span id="pref-strzalka" class="pref-strzalka">▼</span>
+                    <span id="pref-strzalka" class="pref-strzalka" aria-hidden="true">▼</span>
                 </div>
                 <div id="pref-panel" class="pref-panel hidden">
                     <div class="pref-grid">
@@ -257,10 +291,12 @@
 
             <!-- DZIENNIK POŁOWÓW -->
             <section class="sekcja-dziennik" id="sekcja-dziennik">
-                <div class="dziennik-naglowek" onclick="toggleDziennik()">
-                    <span>📓 Dziennik połowów</span>
+                <div class="dziennik-naglowek" role="button" tabindex="0" aria-expanded="false"
+                     aria-controls="dziennik-panel" onclick="toggleDziennik()"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+                    <span><span aria-hidden="true">📓</span> Dziennik połowów</span>
                     <span id="dziennik-stats-mini" class="dziennik-stats-mini"></span>
-                    <span id="dziennik-strzalka" class="pref-strzalka">▼</span>
+                    <span id="dziennik-strzalka" class="pref-strzalka" aria-hidden="true">▼</span>
                 </div>
                 <div id="dziennik-panel" class="dziennik-panel hidden">
 
