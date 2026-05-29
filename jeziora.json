@@ -34,13 +34,14 @@
     "Szczupak": {
       "wymiar_cm": 50,
       "okres_ochronny": [
+        12,
         1,
         2,
         3,
         4
       ],
       "zakaz": false,
-      "uwaga": "Wymiar 50 cm; ochrona do 30 kwietnia"
+      "uwaga": "Wymiar 50 cm; ochrona 1 XII–30 IV"
     },
     "Sum": {
       "wymiar_cm": 70,
@@ -61,28 +62,24 @@
     },
     "Miętus": {
       "wymiar_cm": 25,
-      "okres_ochronny": [],
+      "okres_ochronny": [
+        12,
+        1,
+        2
+      ],
       "zakaz": false,
-      "uwaga": null
+      "uwaga": "Wymiar 25 cm; ochrona 1 XII–koniec lutego"
     },
     "Węgorz": {
-      "wymiar_cm": null,
+      "wymiar_cm": 60,
       "okres_ochronny": [
+        12,
         1,
         2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12
+        3
       ],
-      "zakaz": true,
-      "uwaga": "Moratorium UE — zakaz połowu w całej Polsce"
+      "zakaz": false,
+      "uwaga": "Wymiar 60 cm; ochrona 1 XII–31 III; limit 2 szt./dobę (sprawdź przepisy Okręgu Olsztyn)"
     },
     "Okoń": {
       "wymiar_cm": 15,
@@ -714,9 +711,9 @@
         "lat": 53.69,
         "lon": 20.4
       },
-      "powierzchnia_ha": 120,
+      "powierzchnia_ha": 183,
       "glebokosc_maks_m": 16,
-      "typ": "eutroficzne, płytsze",
+      "typ": "sandaczowy, eutroficzne",
       "strefy_glebokosci": [
         {
           "nazwa": "Rozległe płycizny",
@@ -1052,6 +1049,23 @@
           "metody": [
             "spławik"
           ]
+        },
+        {
+          "nazwa": "Boleń",
+          "sezon": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "preferowana_glebokosc_m": [
+            1,
+            6
+          ],
+          "metody": [
+            "spinning"
+          ]
         }
       ],
       "lowiska": [
@@ -1095,7 +1109,8 @@
             "Jazgarz",
             "Jaź",
             "Sandacz",
-            "Ukleja"
+            "Ukleja",
+            "Boleń"
           ]
         },
         {
